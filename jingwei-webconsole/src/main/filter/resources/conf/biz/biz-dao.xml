@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+	<bean id="dataSource" class="com.taobao.tddl.jdbc.group.TGroupDataSource"
+		init-method="init">
+		<property name="appName" value="JINGWEI_APP_CY"></property>
+		<property name="dbGroupKey" value="JINGWEI_GROUP"></property>
+	</bean>
+
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation"
+			value="classpath:com/taobao/jingwei/webconsole/biz/dao/model/sqlMapConfig.xml">
+		</property>
+	</bean>
+
+
+	<bean id="jwUserDao" class="com.taobao.jingwei.webconsole.biz.dao.impl.JwUserImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="jwPermissionDao"
+		class="com.taobao.jingwei.webconsole.biz.dao.impl.JwPermissionDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="jwResourceDao"
+		class="com.taobao.jingwei.webconsole.biz.dao.impl.JwResourceDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+
+	<bean id="jwUserRoleDao"
+		class="com.taobao.jingwei.webconsole.biz.dao.impl.JwUserRoleDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClient"></property>
+	</bean>
+</beans>

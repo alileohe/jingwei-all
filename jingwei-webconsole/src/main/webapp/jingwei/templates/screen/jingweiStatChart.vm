@@ -1,0 +1,242 @@
+#if($error)
+	<div align="center">Error: $error</div>
+#else
+	<div align="center">
+		<table class="jwTable">
+			<tr>
+				<th>#if($condition.getKey1())任务名#end</th>
+				<th>$!condition.getKey1()&nbsp;</th>
+				<th>主机名</th>
+				<th>#if($condition.getKey2())$!condition.getKey2()#else 所有主机 #end&nbsp;</th>
+			</tr>
+			<tr>
+				<th>查询KEY</th>
+				<th>$!key&nbsp;</th>
+				<th>时间</th>
+				<th>
+					<input type="text" id="startTime" value="$!condition.getStartTime()" readonly onchange="chgDate(this)" />
+					<input type="hidden" id="endTime" value="$!condition.getEndTime()" readonly />
+				</th>
+			</tr>
+			<tr>
+				<td>
+					&nbsp;
+					<input type="hidden" id="key1" value="$!condition.getKey1()" />
+					<input type="hidden" id="key2" value="$!condition.getKey2()" />
+					<input type="hidden" id="key3" value="$!condition.getKey3()" />
+					<input type="hidden" id="statServer" value="$!host"/>
+				</td>
+				<td align="right"><input type="button" id="btnChart" value="更新" onclick="refreshChartData()" disabled /><label><input id="anchor" type="checkbox" onclick="drawAnchor(this)" disabled />渲染点</label></td>
+				<td align="left"><div id="chartLoader" style="display:none"><img src="$imageModule.getURI('/ajax-loader.gif')" />Loading...</div></td>
+				<td><a href="#" onclick="showWeek()">显示周数据</a></td>
+			</tr>
+		</table>
+	</div>
+	<div id="chart_panel" align="center">
+	</div>
+	<div id="chart_panel_data" align="center">
+	</div>
+	<div id="chart_panel_bar" align="center">
+	</div>
+	<div id="chart_panel_bar_data" align="center">
+	</div>
+	<div id="chart_panel_bar_control" align="center" style="display:none">
+		<table class="jwTable">
+			<tr align="center">
+				<td><input type="button" id="pWeek" onclick="preWeek()" value="上一周" disabled></td>
+				<td><div id="barChartLoader" style="visibility:hidden"><img src="$imageModule.getURI('/ajax-loader.gif')" />Loading...</div></td>
+				<td><input type="button" id="nWeek" onclick="nextWeek()" value="下一周" disabled></td>
+			</tr>
+		</table>
+	</div>
+#end
+<div align="center">
+	<a href="#" onclick="closeWindow();">关闭</a>
+</div>
+<input type="hidden" id="maxWeek" value="$!condition.getWeek()" />
+<input type="hidden" id="week" value="$!condition.getWeek()" />
+<font color="white" id="url"></font>
+<br />
+<font color="white" id="url_bar"></font>
+<script language="javascript">
+	jQuery("#startTime").datetimepicker({
+		showSecond: false,
+		showMinute: false,
+		showHour: false,
+		dateFormat: 'yy-mm-dd',
+		timeFormat: '',
+		maxDate: '$max'
+	}
+	);
+	function chgDate(startE){
+		var start = startE.value;
+		document.getElementById("endTime").value = start;
+	}
+	var url = "$jingweiModule.setTarget('jingweiStatChartData.vm').render()";
+	function getURL(){
+		var tmp = url;
+		tmp += "?key1=" + document.getElementById("key1").value;
+		tmp += "&key2=" + document.getElementById("key2").value;
+		tmp += "&key3=" + document.getElementById("key3").value;
+		tmp += "&startTime=" + document.getElementById("startTime").value;
+		tmp += "&endTime=" + document.getElementById("endTime").value;
+		tmp += "&statServer=" + document.getElementById("statServer").value;
+		#if($condition.getTimeout())
+			tmp += "&timeout=$condition.getTimeout()";
+		#end
+		tmp += "&chartType=0";
+		tmp += "&interval=10m";
+		tmp += "&summaryPeriod=$!condition.getSummaryPeriod()";
+		tmp += "&t=" + Date.parse(new Date());
+		document.getElementById("url").innerHTML = tmp;
+		return tmp;
+	}
+	function getURLBar(){
+		var tmp = url;
+		tmp += "?key1=" + document.getElementById("key1").value;
+		tmp += "&key2=" + document.getElementById("key2").value;
+		tmp += "&key3=" + document.getElementById("key3").value;
+		tmp += "&week=" + document.getElementById("week").value;
+		tmp += "&statServer=" + document.getElementById("statServer").value;
+		#if($condition.getTimeout()>0)
+			tmp += "&timeout=$condition.getTimeout()";
+		#end
+		tmp += "&chartType=1";
+		tmp += "&interval=1d";
+		tmp += "&t=" + Date.parse(new Date());
+		document.getElementById("url_bar").innerHTML = tmp;
+		return tmp;
+	}
+	var chart = new FusionCharts("$imageModule.getURI('/FC_MSLine.swf')", "ChartId", "800", "600", "0", "1");
+	chart.setJSONUrl(getURL());
+	chart.render("chart_panel");
+	function refreshChartData(){
+		document.getElementById("anchor").checked = false;
+		document.getElementById("btnChart").disabled = true;
+		document.getElementById("anchor").disabled = true;
+		document.getElementById("chartLoader").style.display = "";
+		chart = FusionCharts("ChartId");
+		chart.setJSONUrl(getURL());
+	}
+	function preWeek(){
+		var pre = parseInt(document.getElementById("week").value) - 1
+		document.getElementById("week").value = pre;
+		refreshBarChartData();
+	}
+	function nextWeek(){
+		var next = parseInt(document.getElementById("week").value) + 1;
+		document.getElementById("week").value = next;
+		refreshBarChartData();
+	}
+	function refreshBarChartData(){
+		document.getElementById("pWeek").disabled = true;
+		document.getElementById("nWeek").disabled = true;
+		document.getElementById("barChartLoader").style.visibility = "visible";
+		chartBar = FusionCharts("BarChartId");
+		chartBar.setJSONUrl(getURLBar());
+	}
+	function drawAnchor(checker){
+		chart = FusionCharts("ChartId");
+		chart.setChartAttribute("drawanchors", checker.checked ? "1" : "0");
+	}
+	function showWeek(){
+		document.getElementById("chart_panel_bar_control").style.display = "";
+		var chartBar = new FusionCharts("$imageModule.getURI('/FC_MSColumn2D.swf')", "BarChartId", "800", "600", "0", "1");
+		chartBar.setJSONUrl(getURLBar());
+		chartBar.render("chart_panel_bar");
+	}
+	function FC_DataLoaded(DOMId){
+		if(DOMId == "ChartId"){
+			document.getElementById("btnChart").disabled = false;
+			document.getElementById("anchor").disabled = false;
+			document.getElementById("chartLoader").style.display = "none";
+			calcLineData();
+		}
+		else
+			if(DOMId == "BarChartId"){
+				document.getElementById("pWeek").disabled = false;
+				var next = parseInt(document.getElementById("week").value) + 1;
+				var max = parseInt(document.getElementById("maxWeek").value);
+				document.getElementById("nWeek").disabled = next > max;
+				document.getElementById("barChartLoader").style.visibility = "hidden";
+				printData();
+			}
+	}
+	function calcLineData(){
+		var chart = FusionCharts("ChartId");
+		var data = chart.getJSONData();
+		var ds = data.dataset;
+		var div = document.getElementById("chart_panel_data");
+		div.innerHTML = "<table id='line_chart_data' class='jwTable' style='width:80%'></table>";
+		var table = document.getElementById("line_chart_data");
+		var title = table.insertRow(0);
+		title.insertCell(0).innerHTML = "&nbsp;";
+		title.insertCell(1).innerHTML = "总计";
+		title.insertCell(2).innerHTML = "平均";
+		
+		for(var i = 0; i < ds.length; i++){
+    		var sum = 0;
+    		var row = table.insertRow(i + 1);
+			var dSet = ds[i];
+			row.insertCell(0).innerHTML = dSet.seriesname;
+			for(var j = 0; j < dSet.data.length; j++){
+				sum += parseInt(dSet.data[j].value);
+			}
+			row.insertCell(1).innerHTML = formatMoney(sum);
+			row.insertCell(2).innerHTML = formatFloat(sum / dSet.data.length, 1);
+		}
+		
+	}
+	function printData(){
+		var chart = FusionCharts("BarChartId");
+		var data = chart.getJSONData();
+		var ds = data.dataset;
+		var div = document.getElementById("chart_panel_bar_data");
+		div.innerHTML = "<table id='bar_chart_data' class='jwTable'></table>";
+		var table = document.getElementById("bar_chart_data");
+		var title = table.insertRow(0);
+		var category = data.categories[0];
+		var d = new Date();
+		var s = 0;
+		if(document.getElementById("maxWeek").value == document.getElementById("week").value){
+			s = d.getDay() == 0 ? 7 : d.getDay();
+		}
+		else{
+			s = 7;
+		}
+		for(var i = 0; i < ds.length; i++){
+			var item = ds[i].data;
+			var row = table.insertRow(i + 1);
+			var sum = 0;
+			for(var j = 0; j < item.length; j++){
+				if(i == 0){
+					var td = title.insertCell(j);
+					td.innerHTML = category.category[j].label;
+				}
+				var cell = row.insertCell(j);
+				cell.innerHTML = formatMoney(item[j].value);
+				sum += parseInt(item[j].value);
+			}
+			row.insertCell(0).innerHTML = ds[i].seriesname;
+			row.insertCell(row.cells.length).innerHTML = formatMoney(sum);
+			row.insertCell(row.cells.length).innerHTML = formatFloat(sum / s, 1);
+		}
+		title.insertCell(0).innerHTML = "&nbsp;";
+		title.insertCell(title.cells.length).innerHTML = "总计";
+		title.insertCell(title.cells.length).innerHTML = "平均";
+	}
+	function formatFloat(src, pos){
+		var re = Math.round(src*Math.pow(10, pos))/Math.pow(10, pos);
+		if(re.toString().indexOf(".") > -1){
+			var t = re.toString().split(".");
+			re = formatMoney(t[0]) + "." + t[1];
+		}
+		else{
+			re = formatMoney(re);
+		}
+		return re;
+	}
+	function formatMoney(s){
+		return s.toString().replace(/\B(?=([\d]{3})+$)/g,',');
+	}
+</script>

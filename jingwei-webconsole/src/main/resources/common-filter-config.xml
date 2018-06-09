@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="gb2312"?>  
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="commonFilterConfig" class="com.taobao.jingwei.webconsole.model.config.CommonFilterConfig">
+		<property name="srcSchemaReg" value="DEFAULT_SRC_SCHEMA_REG"></property>
+		<property name="srcTableReg" value="DEFAULT_SRC_TABLE_REG"></property>
+		<property name="includeInsert" value="true"></property>
+		<property name="includeUpdate"  value="true"></property>
+		<property name="includeDelete" value="true"></property>
+		<property name="columnFilterSchemaReg" value="DEFAULT_SCHEMA"></property>
+		<property name="columnFilterLogicTableName" value="DEFAULT_TABLE"></property>
+		<property name="columnFilterUseInclude" value="true"></property>
+		<property name="columnFilterColums" value="clo1,col2,col3,col4,"></property>
+		<property name="columnFilterDynaCode">
+			<value>
+			<![CDATA[
+			
+			]]>
+			</value>
+		</property>
+	</bean>
+</beans>

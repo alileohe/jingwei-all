@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+		<beans  default-autowire="byName">
+		<bean id="jwTaskAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiTaskAOImpl" />
+		<bean id="jwServerAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiServerAOImpl" />
+		<bean id="jwCommonAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiCommonAOImpl" />
+		<bean id="jwMonitorAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiMonitorAOImpl" />
+		<bean id="jwGroupAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiGroupAOImpl" />
+		<bean id="jwBatchAO" class="com.taobao.jingwei.webconsole.biz.ao.impl.JingweiBatchAOImpl" />
+	</beans>

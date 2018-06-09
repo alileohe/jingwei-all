@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>精卫填海-任务管理</title>
+		$control.setTemplate("tbraControl.vm")
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/button/assets/skins/sam/button.css" />
+		<script type="text/javascript" src="$jsModule.getURI('/FC_jquery-1.4.2.min.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/jquery.easydrag.js')"></script>
+		<style type="text/css">
+			#Tab {
+			margin: 0 auto;
+			width: 800px;
+			border:1px solid #dedede;
+			border-bottom:0px
+			}
+			.Menubox {
+			height:28px;
+			border-bottom:1px solid #dedede;
+			background:#F5F5F5;
+			}
+			.Menubox ul{
+			list-style:none;
+			margin:7px 40px;
+			padding:0;
+			position:absolute;
+			}
+			.Menubox ul li {
+			float:left;
+			background:#ededed;
+			line-height:20px;
+			display:block;
+			cursor:pointer;
+			width:80px;
+			text-align:	center;
+			font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+			color: #4f6b72;
+			border-top:1px solid #dedede;
+			border-left:1px solid #dedede;
+			border-right:1px solid #dedede;
+			}
+			.Menubox ul li.hover {
+			background:#DEDEDE;
+			border-bottom:1px;
+			color:#4f6b72;
+			}
+			.Contentbox{
+			clear:both;
+			margin-top:0px;
+			border-top:none;
+			height:1800px;
+			weight:800px;
+			padding-top:8px;
+			height:100%;
+			}
+			.Contentbox ul {
+			list-style:none;
+			margin:7px;
+			padding:0;
+			}
+			.Contentbox ul li{
+			line-height:24px;
+			border-bottom:1px dotted #ccc;
+			}
+			.pop_box {
+			z-index: 9999;
+			margin-bottom: 3px;
+			display: none;
+			position: absolute;
+			background: #dedede;
+			border-top: ridge;
+			border-right: groove;
+			border-bottom: groove;
+			border-left: ridge;
+			padding: 10px;
+			font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+			color: #4f6b72;
+			}
+			.pop_box_body{
+			}
+			.p_head{
+			height:30px;
+			cursor:move;
+			}
+			.p_h_x{
+			float: left;
+			text-align:center;
+			font-size: 12px;
+			font-weight: bold;
+			}
+			.p_btn {
+			width: 60px;
+			}
+		</style>
+	</head>
+<body class="yui-skin-sam">
+	<div id="header">$control.setTemplate("top.vm")</div>
+	<div id="contain">
+		<div id="mainbg">
+			<div id="left">
+				<div>$control.setTemplate("left.vm")</div>
+			</div>
+			<div id="right">
+				<div >$screen_placeholder</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">$control.setTemplate("footer.vm")</div>
+</body>
+</html>

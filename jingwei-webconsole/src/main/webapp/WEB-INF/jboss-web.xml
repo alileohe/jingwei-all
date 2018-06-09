@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="GB2312"?>
+
+<jboss-web>
+    <context-root>/jingwei</context-root>
+</jboss-web>
+<!-- git test -->

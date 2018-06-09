@@ -1,0 +1,74 @@
+.jwTable {
+	padding: 0;
+	margin: 0;
+}
+
+.jwTable a {
+	color: #c75f3e;
+}
+
+.jwTable caption {
+	padding: 0 0 0 0;
+	width: 700px;
+	font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	text-align: right;
+}
+
+.jwTable th {
+	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #4f6b72;
+	border-bottom: 1px solid #DEDEDE;
+	border-top: 1px solid #DEDEDE;
+	text-align: left;
+	padding: 6px 6px 6px 12px;
+	background: #DEDEDE;
+}
+
+.jwTable th.nobg {
+	border-top: 0;
+	background: none;
+}
+
+.jwTable td {
+	border-top: 1px solid #DEDEDE;
+	border-bottom: 1px solid #DEDEDE;
+	background: #fff;
+	font-size: 11px;
+	padding: 6px 6px 6px 12px;
+	color: #4f6b72;
+	word-break: break-all;
+	word-wrap: break-word;
+}
+
+.jwTable td ul {
+	text-align: left;
+}
+
+.jwTable td ul li {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.jwTable td.alt {
+	background: #F5FAFA;
+	color: #797268;
+}
+
+.jwTable th.spec {
+	border-top: 0;
+	background: #fff no-repeat;
+	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
+
+.jwTable th.specalt {
+	border-top: 0;
+	background: #f5fafa no-repeat;
+	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #797268;
+}
+
+.box{border:1px solid #C0C0C0;width:250px;clip:rect(0px,181px,16px,0px);overflow:hidden;} 
+select{position:relative;left:-2px;top:-2px;font-size:12px;width:250px;line-height:14px;
+border:0px;
+} 
+

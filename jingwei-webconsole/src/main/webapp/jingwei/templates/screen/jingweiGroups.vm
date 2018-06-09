@@ -1,0 +1,755 @@
+#if($messages)
+	<div style="color:red;">$messages</div>
+#end
+
+
+<strong>Group搜索</strong>
+<form id="searchForm" name="searchForm" action="$jingweiModule.setTarget('jingweiGroups.vm').render()" method="post">
+	<input type="hidden" name="criteria" value="$!criteria_data" />
+	<table class="jwTable">
+		<tr>
+			<th width="20%">ZK服务器</th>
+			<td>
+				$control.setTemplate("jingweiZkServer.vm")
+			</td>
+		</tr>
+		<tr>
+			<th>Group ID</th>
+			<td>
+				<input type="text" id="groupNameCriteria" name="groupNameCriteria" value="$!criteria.groupName"/>
+			</td>
+			<td>
+				<span style="float:left;  padding-left:00px; padding-top:5px;padding-right:30px;">
+					<a class="yugongLink"  title="添加Group" >
+						<img border="0" onclick="popupDiv('add_group_div');" src="$imageModule.getURI('add.gif ')" alt="添加Group" style="cursor: pointer;" />
+					</a>
+				</span>
+				<span style="margin-right:20px;">
+					<input type="reset" id="resetBtn" class="yugongBtn" value="清空" onclick="reset_and_submit()" />
+				</span>
+				<input type="submit" class="yugongBtn" value="搜索" />
+			</td>
+		</tr>
+	</table>
+</form>
+<div class="add_group_div" id="add_group_div" >
+	<div style="padding: 5px; border:solid #dedede 1px; height:50px;">
+		<div style="float:right;">
+			<input type="button" onclick="hideDiv('add_group_div');" title="关闭窗口" value="关闭">
+			</input>
+		</div>
+		<div class="p_h_x" >添加Group</div>
+		<div style="padding-top:20px; ">
+			<span style="float:left; width:100px; padding-top:5px;">
+				请输入Group名：
+			</span>
+			<span style="float:left; ">
+				<input type="text" id= "add_group_name">
+			</span>
+			<span style="float:right;">
+				<input type="button" value="添加"  style="cursor: pointer;" onclick='addGroup("$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action', 'JingweiGroupAction').addQueryData('event_submit_do_add_group', 1).addQueryData('host',$host).render()");'>
+				</input>
+			</span>
+		</div>
+	</div>
+</div>
+<!-- 传递给批量获取对话框使用，逗号分隔 -->
+
+<input type="hidden" id="tasks_in_group" value="" />
+<div id="groupView" >
+	<table class="jwTable" id="group_table">
+		<tr align="center">
+			<th width="80px;">
+				<span style="float:left;">Group列表</span>
+			</th>
+			<th width="500px;">任务列表</th>
+			<th width="50px">操作</th>
+		</tr>
+		#foreach($g in $groups)
+			<tr>
+				<td >
+					<span>
+						$g.groupName
+					</span>
+					#if($g.groupServerInfos.isEmpty()) <br/><span style="color: red;">未分配server</span> #end
+				</td>
+				<td >
+					#set ($tasks_in_group="")
+					<div>
+						#set($name = "")
+						#foreach($taskInfo in $g.groupTaskInfos)
+							#set ($tasks_in_group="$taskInfo.taskName,$tasks_in_group")
+							#if($name == "" || $name ==  $taskInfo.taskName)
+								<div #if($taskInfo.status == "RUNNING")  style="clear:both;color:green; padding-bottom:5px; padding-top:5px; margin:0 auto;" #else style="clear:both;color:red; padding-bottom:5px; padding-top:5px; margin:0 auto;" #end >
+							#else
+								<div #if($taskInfo.status == "RUNNING")  style="clear:both;color:green; padding-bottom:5px; padding-top:5px; border-top: 1px solid #DEDEDE; margin:0 auto;" #else style="clear:both;color:red; padding-bottom:5px; padding-top:5px; border-top: 1px solid #DEDEDE; margin:0 auto;" #end >
+							#end
+							<span style="float:left;width:15px;">$velocityCount</span>
+							<span style="float:left;width:150px;">
+								<a href="$jingweiModule.setTarget('jingweiTaskDetail.vm').render()?taskId=$taskInfo.taskName&host=$!host" target="_blank" >$taskInfo.taskName</a>
+							</span>
+							<span style="float:left;width:40px; align:center;padding-left:7px;">
+								$taskInfo.operate
+							</span>
+							<span style="float:left;width:50px; padding-right:10px; " >
+								$taskInfo.status
+							</span>
+							<span style="float:left;width:170px;padding-right:10px;">
+								<a href="$jingweiModule.setTarget('jingweiTaskStat.vm').render()?taskId=$taskInfo.taskName&hostName=$taskInfo.serverName&host=$!host" >
+									$taskInfo.serverName
+								</a>
+							</span>
+							#if($name == "" || $name !=  $taskInfo.taskName)
+								<span style="vertical-align:middle;">
+									<span style="float:left; width:70px; padding-right:10px;"">
+										#if($taskInfo.operate == "START")
+											<span  class="disabledLink" >启动</span>
+											&nbsp;
+											<a href="#" onclick='stopTask("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action','JingweiGroupAction').addQueryData('groupName',$g.groupName).addQueryData('taskName',$taskInfo.taskName).addQueryData('host',$host).addQueryData('event_submit_do_stop_task',1).render()");' class="yugongLink">
+												停止
+											</a>
+											<span class="disabledLink">
+												修改
+											</span>
+										#else
+											<a href="#" onclick='startTask("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action','JingweiGroupAction').addQueryData('groupName',$g.groupName).addQueryData('taskName',$taskInfo.taskName).addQueryData('host',$host).addQueryData('event_submit_do_start_task',1).render()");' class="yugongLink">
+												启动
+											</a>
+											&nbsp;
+											<span class="disabledLink">
+												停止
+											</span>
+											<a href="$jingweiModule.setTarget('jingweiUpdateTask.vm').render()?taskId=$!taskInfo.getTaskName()&host=$!host" target="_blank">
+											           修改
+										    </a>
+										#end
+									</span>
+									<span style="float:left; padding-right:10px; width:15px;">
+										<a class="yugongLink" title="删除任务" style="cursor: pointer;"  onclick='deleteGroupTask("$pageCount", "$currentPage", "$pageSizeInt", "$taskInfo.operate", "$taskInfo.status", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action', 'JingweiGroupAction').addQueryData('taskName', $taskInfo.taskName).addQueryData('groupName', $g.groupName).addQueryData('host',$host).addQueryData('event_submit_do_delete_task', 1).render();");' >
+											<img border="0" src="$imageModule.getURI('delete.gif')" alt="删除任务" />
+										</a>
+									</span>
+								</span>
+							#end
+							#set($name = $taskInfo.taskName)
+					</div>
+		#end
+</div>
+</div>
+</td>
+<td style=" padding-left: 10px;">
+	<span>
+		<a class="yugongLink" style="cursor: pointer;" onclick='getCandidateTasks("$jingweiModule.addQueryData('action', 'JingweiGroupAction').addQueryData('groupName', $g.groupName).addQueryData('host',$host).addQueryData('event_submit_do_get_candidate_tasks', 1).render()", "$g.groupName", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action','JingweiGroupAction').addQueryData('serverName',$g.groupName).addQueryData('host',$host).addQueryData('event_submit_do_add_tasks', 1).render()");' title="添加任务" >
+			<img border="0" src="$imageModule.getURI('add.gif ')" alt="添加任务" />
+		</a>
+	</span>
+	&nbsp;
+	<span>
+		<a class="yugongLink" style="cursor: pointer;" title="删除Group">
+			<img border="0" onclick='removeGroup("$g.groupName", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action', 'JingweiGroupAction').addQueryData('event_submit_do_remove_group', 1).addQueryData('host',$host).render()");' src="$imageModule.getURI('delete.gif')" alt="删除Group" />
+		</a>
+	</span>
+	<span>
+		<button class='p_btn' onclick='show_batch_modify_dialog("$g.groupName", "$tasks_in_group")' style="cursor: pointer;" >批量修改
+		</button>
+	</span>
+</td>
+</tr>
+#end
+</table>
+<input type="hidden" name="current_group_for_batch" id="current_group_for_batch" value="">
+<div id="batch_position_dialog" title="批量位点信息" style="display:none;">
+	<!-- 保存结果 -->
+	<textarea cols="60" rows="5" id="result_textarea" ></textarea> 
+	<button id="modify_pisition_btn" >更新位点</button>
+	<table id="result_table" class="table table-bordered table-condensed">
+      <tr>
+		<th width="26px;">序号</th>
+	    <th width="170px;">任务名列表</th>
+	    <th width="170px;">是否成功</th>
+		<th>失败原因</th>
+      </tr>
+   </table>
+</div>
+
+</div>
+<input type="hidden" id="root_path" value="$jingweiModule.render()" ></input>
+<!-- 批量处理弹出框 -->
+<div id="batch_modify_dialog" title="批量操作" style="display:none;">
+	切换是否支持批量修改
+		<input type="checkbox" name="supportBatchModifyToggle" id="supportBatchModifyToggle" #if($g.supportBatchModify)  checked #end /> 
+    <button onclick="toggle_group_batch_modify()">确定</button><font color="red"><label id="update_group_batch_toggle_result" ></label></font>
+</div>
+<script language="javascript">
+String.prototype.replaceAll  = function(s1,s2){  
+return this.replace(new RegExp(s1,"gm"),s2);   //这里的gm是固定的，g可能表示global，m可能表示multiple。
+}
+  $("#modify_pisition_btn").click(function(){
+     var result = $("#result_textarea").val();
+     //http://10.13.43.86/jingwei/api/JingweiGateWay.do?act=batchUpdateMysqlBinlogPosCommand&host=XXX&positionContent=XXX
+	 var path = getApiRootPath();
+	
+	 path += "&act=batchUpdateMysqlBinlogPosCommand";
+	// path += "&positionContent=" + result;
+	// path= path.replaceAll("#", "%23");
+	 
+	 //alert(path)
+	 jQuery.ajax({
+       url: path,
+       type: "POST",
+       dataType:'json',
+	   data:{'positionContent' : result},
+       success:function(json) {
+         var isSuccess = json.isSuccess;
+		 //alert(json.content.length);
+		 for (var i = 0; i < json.content.length; i++) {
+		     var entry = json.content[i];
+		     var taskName = entry.taskName;
+			 var isSuccess = entry.isSuccess;
+			 var cause = entry.cause;
+			 if (isSuccess) {
+			     cause = "";
+			 }
+			 
+             var innerHtml = "<tr align='center'>"
+	         innerHtml += "<td>" + (i + 1);
+             innerHtml += "</td>"   
+             innerHtml += "<td>" + taskName;   
+             innerHtml += "</td>";   
+             innerHtml += "<td>" + isSuccess;   
+             innerHtml += "</td>"   
+             innerHtml += "<td>" + cause;   
+             innerHtml += "</td>";   
+             innerHtml += "</tr>";   
+             $("#result_table").append(innerHtml); 
+			 
+		 }
+       },
+       error:function(er){
+         alert('失败');
+       }
+     });	 
+  });
+  function toggle_group_batch_modify() {
+	 var group_name = $("#current_group_for_batch").val();
+	 //alert(group_name);
+	 
+     var root_path = $("#root_path").val();
+	 var host = $("#host").val();
+	 root_path += "/api/JingweiGateWay.do?act=toggleGroupBatchModify";
+	 root_path += "&host=" + host;
+	 root_path += "&groupName=" + group_name;
+	 root_path += "&supportBatchUpdate=";
+	 
+	 //val success_support_prompt = "支持批量";
+	 //val success_unsupport_prompt = "不支持批量";
+	 
+     // jquery1.9 需要加[0]
+	 //alert($("#supportBatchModifyToggle")[0].checked);
+     if ($("#supportBatchModifyToggle")[0].checked == true) { 
+	    root_path += "true";
+  
+     } else {
+	    root_path += "false";
+	 }
+	 //alert(root_path);
+	 	jQuery.ajax({
+      url: root_path,
+      type: "POST",
+      dataType:'json',
+      success:function(json) {
+        var isSuccess = json.isSuccess;
+		//alert(isSuccess);
+		if (isSuccess == true) {
+		  //alert("1");
+		  //alert(json.supportBatchUpdate);
+		  if (json.supportBatchUpdate == "true") {
+		      $("#update_group_batch_toggle_result").text("支持批量修改");
+		  } else {
+		      $("#update_group_batch_toggle_result").text("不支持批量修改");
+		  }
+		} else {
+		  alert('失败');
+		}
+      },
+      error:function(er){
+        alert('失败');
+      }
+    });
+  }
+
+</script>
+<script language="javascript">
+function show_batch_modify_dialog(group_name, tasks_in_group){
+    // 缓存groupname
+	$("#current_group_for_batch").val(group_name);
+	
+    var host = $("#host").val();
+    var root_path = $("#root_path").val();
+	root_path += "/jingwei_batch_update.htm?"
+	root_path += "host=" + host;
+	root_path += "&taskNames=" + tasks_in_group;
+	
+    $("#batch_modify_dialog").attr('title', "批量操作 : " + group_name);
+  	$("#batch_modify_dialog").show();
+    $("#batch_modify_dialog").dialog({
+			width: 590,
+			modal: true,
+			buttons: [
+				{
+					text: "批量获取位点",
+					click: function() {
+						$("#result_textarea").val("");
+					    show_dialog(group_name, tasks_in_group);
+					}
+				},
+				{
+					text: "批量修改Applier",
+					click: function() {
+					  	root_path += "&type=applier"; 
+						location.href = root_path;
+					}
+				},
+				{
+					text: "批量修改公共配置",
+					click: function() {
+					    // 公共配置
+					  	root_path += "&type=common"; 
+						location.href = root_path;
+					}
+				},
+				{
+					text: "批量修改MysqlBinlog Extractor",
+					click: function() {
+					  	root_path += "&type=binlog-extractor"; 
+						location.href = root_path;
+					}
+				},
+				{
+					text: "批量启动",
+					click: function() {
+					    batch_toggle_task(group_name, tasks_in_group, true);
+						//(this).close();
+					}
+				},
+				{
+					text: "批量停止",
+					click: function() {
+					    batch_toggle_task(group_name, tasks_in_group, false);
+						//(this).close();
+					}
+				},
+			],
+			close: function(){
+
+            }
+	});
+}
+// 批量启动group内的任务
+function batch_toggle_task(group_name, tasks_in_group, start_task) {
+    //http://10.13.43.86/jingwei/api/JingweiGateWay.do?act=toggleTaskUnderGroup&host=XXX&groupName=XXX&taskName=XXX
+	var path = getApiRootPath();
+	
+	path += "&act=toggleTaskUnderGroup";
+	path += "&groupName=" + group_name;
+	path += "&startTask=" + start_task;
+
+	
+	var tasks = tasks_in_group.split(",")
+	for (var i = 0; i < tasks.length; i++) {
+	  if (jQuery.trim(tasks[i]) != "") {
+	       var url = path + "&taskName=" + tasks[i];
+	      // alert(url);
+		  // wait a monent
+		   var a = 1 + 2;
+		   jQuery.ajax({
+               url: url,
+               type: "POST",
+			   async: false,
+               dataType:'json',
+               success:function(json) {
+			      // alert();
+               },
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+				   // return ('Not connected.\nPlease verify your network connection.');但是确实连得上
+                   //   alert(XMLHttpRequest.status);
+               }
+           });			
+	   }
+	}
+	
+	var	refresh_page = getPageConditionPath("jingwei_groups.htm");
+	refresh_page += "&groupNameCriteria=" + $('#groupNameCriteria').val();
+	//alert(refresh_page);
+	location.href=refresh_page;
+}
+
+
+function show_dialog(group_name, tasks_in_group) {
+	
+	var tasks = tasks_in_group.split(",")
+	for (var i = 0; i < tasks.length; i++) {
+	  if (jQuery.trim(tasks[i]) != "") {
+	      var root_path = getApiRootPath();
+	  	  // http://10.13.43.86:8080/jingwei/api/JingweiGateWay.do?act=getMysqlBinlogPosByTaskName&taskName=DAILY-TMALL-INVENTORY-ROLLBACK-1&host=1
+	      root_path += "&act=getMysqlBinlogPosByTaskName";
+	      root_path += "&taskName=" + tasks[i];
+	  
+		  var taskName = tasks[i];
+		 // alert(taskName);
+	      jQuery.ajax({
+              url: root_path,
+              type: "POST",
+			  async: false,
+              dataType:'json',
+              success:function(json) {
+                  var isSuccess = json.isSuccess;
+	  	          //alert(isSuccess);
+		          var re;
+	  	          if (isSuccess == true) {
+                      re = json.position;
+	  	          } else {
+	  	              re = json.cause;
+	  	          }
+		          var result_textarea_val = $("#result_textarea").val();
+		
+		          result_textarea_val += taskName + " " +  re + "\r\n";
+				//  alert(result_textarea_val);
+		          $("#result_textarea").val(result_textarea_val);
+              },
+              error:function(er){
+                  alert('失败');
+              }
+          });	
+	    }
+    }
+
+	
+	$("#batch_position_dialog").show();
+    $("#batch_position_dialog").dialog({
+			width: 590,
+			modal: true,
+			close: function(){
+              $("#result_table tr").each(function(trindex, tritem) {
+			     if (trindex > 0) {
+				   $(tritem).remove();
+				 }
+			  });
+            }
+	});
+}
+
+</script>
+<div id='edit_task_div' class="edit_task_div">
+	<input type="hidden" id="targetUrl" />
+	<input type="hidden" id="target_group" />
+	<div class="edit_task_div_head">
+		<div class="pop_group_header" id="pop_group_header"></div>
+		<div style="float:right;">
+			<input type="button" class="p_btn"  onclick="hideDiv('edit_task_div');" title="关闭窗口" value="关闭">
+			</input>
+		</div>
+	</div>
+	<div>
+		<div style="clear:both;padding:10px;">
+			<table>
+				<tr>
+					<td align="right">
+						<select id="taskListSrc" size="10" class="box" name="taskListSrc">
+							#foreach($element in $allTasks)
+								<option>$element</option>
+							#end
+						</select>
+					</td>
+					<td align="center">
+						<input type="button" class="p_btn" value="全选>
+						>" onclick="addAll()" />
+						<br/>
+						<input type="button" class="p_btn" value="添加->
+						" onclick="addTask()" />
+						<br/>
+						<input type="button" class="p_btn" value="<-删除" onclick="removeTask()" /><br/>
+						<input type="button" class="p_btn" value="<<全消" onclick="removeAll()" />
+						</td>
+						<td align="left">
+						<select id="taskListTarget" size="10" class="box" name="taskListTarget">
+						</select>
+						</td>
+						</tr>
+						</table>
+						</div>
+						<div style="float:right">
+						<input id="confirm_select_task" onclick='addTasks("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiGroups.vm').addQueryData('action', 'JingweiGroupAction').addQueryData('host',$host).addQueryData('event_submit_do_add_tasks', 1).render()");' type="button" value="确定" class="p_btn"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input id="reset_select_task" type="reset" value="重置" onclick="removeAll()" class="p_btn"/>
+						</div>
+						</div>
+						</div>
+						<script language="javascript">
+						function getCandidateTasks (url, groupName, targetUrl) {
+						$('#taskListSrc').empty();
+						$('#taskListTarget').empty();
+						
+						$('#targetUrl').val(targetUrl);
+						
+						
+						var str2 = url.replace("jingwei", "jingwei/jingweiGroups.do");
+						
+						jQuery.getJSON(str2,function(result){
+						
+						for (i = 0; i< result.candidates.length; i++) {
+						
+						$("<option>" + result.candidates[i] + "</option>").appendTo('#taskListSrc');
+						}
+						
+						var prompt = "请为  " + groupName + " 选择任务 ";
+						$("#pop_group_header").html( prompt );
+						
+						$('#target_group').val(groupName);
+						
+						popupDiv('edit_task_div');
+						});
+						}
+						
+						function addGroup(url) {
+						var group_name = $("#add_group_name").val();
+						
+						if (group_name == "") {
+						alert("请输入group名！");
+						return;
+						}
+						
+						$("table#group_table tr").each(function () {
+						$(this).find("td:first").each(function(){
+						//alert($(this).text());
+						if (jQuery.trim($(this).text()) ==  group_name) {
+						alert("已经存在，请输入其它名字！");
+						return;
+						}
+						});
+						});
+						
+						// 查询条件
+						var groupNameCriteria = $("#groupNameCriteria").val();
+						
+						location.href = url + "&groupName=" + group_name + "&groupNameCriteria=" + groupNameCriteria;
+						}
+						
+						function removeGroup(group_name, url) {
+						if (!confirm("确认删除该Group？")) {
+						return;
+						}
+						
+						$("table#group_table tr").each(function () {
+						var group_name_td = $(this).find('td').get(0);
+						// alert($($(group_name_td).find('span').get(0)).text());
+						var targetText = $($(group_name_td).find('span').get(0)).text();
+						var first = jQuery.trim(targetText.toString());
+						var second = jQuery.trim(group_name.toString());
+						
+						if (first ==  second) {
+						var task_list = $($($(this).find('td').get(1)).find('div').get(0)).text();
+						//alert(task_list);
+						if (jQuery.trim(task_list) == "") {
+						var new_url = url + "&groupName=" + group_name;
+						//alert(new_url);
+						location.href = new_url;
+						} else {
+						alert("请先删除组内任务！");
+						}
+						}
+						});
+						}
+						
+						function deleteGroupTask(pageCount, currentPage, pageSizeInt, operate, status, url) {
+						if (!confirm("确认删除该任务？")) {
+						return;
+						}
+						
+						var con = getCondition();
+						con += "&pageCount=" + pageCount;
+						con += "&currentPage=" + currentPage;
+						con += "&pageSizeInt=" + pageSizeInt;
+						
+						if (operate == "——" || operate == "STOP") {
+						location.href = url + con;
+						return;
+						}
+						
+						if (status == "RUNNING") {
+						alert("任务正在运行，请先停止任务！");
+						return;
+						} else {
+						location.href = url + con;
+						}
+						}
+						
+						function reset_and_submit() {
+						$('#groupNameCriteria').val('');
+						$('#searchForm').submit();
+						}
+						
+						</script>
+						
+						<script language="javascript">
+						// 弹出div
+						function popupDiv(div_id){
+						var div_obj = $("#" + div_id);
+						
+						//窗口宽度,高度
+						var winWidth = $(window).width();
+						var winHeight = $(window).height();
+						
+						//弹出的div的宽度,高度
+						var popHeight = div_obj.height();
+						var popWidth = div_obj.width();
+						div_obj.animate( { opacity: "show", left: (winWidth-popWidth) / 2,
+						top: (winHeight-popHeight)/2, width:popWidth,height:popHeight}
+						, 300);
+						}
+						
+						// 隐藏div
+						function hideDiv(div_id){
+						$("#" + div_id).animate({opacity: "hide" }
+						, 300);
+						}
+						
+						// 拖拽
+						$(function(){
+						$(".edit_task_div").easydrag();
+						$(".edit_task_div").setHandler(".edit_task_div .edit_task_div_head");
+						});
+						
+						function addTasks(pageCount, currentPage, pageSizeInt, url) {
+						//alert($('#target_group').val());
+						var data = "";
+						$('#taskListTarget option').each(function() {
+						data += $(this).val();
+						data += ",";
+						});
+						
+						data = data.substr(0, data.length - 1);
+						
+						if (data == "") {
+						alert("请先选择任务！");
+						return;
+						}
+						
+						var con = getCondition();
+						con += "&pageCount=" + pageCount;
+						con += "&currentPage=" + currentPage;
+						con += "&pageSizeInt=" + pageSizeInt;
+						
+						url = url + "&groupName=" + $('#target_group').val();
+						//alert(url + con);
+						location.href = url + "&targets=" + data + con;
+						
+						hideDiv("edit_task_div");
+						}
+						
+						</script>
+						<script language="javascript">
+						// 添加选中的项到右边
+						function addTask(){
+						if ($('#taskListSrc')[0].selectedIndex < 0) {
+						return;
+						}
+						add();
+						}
+						
+						// 添加双击选中的项到右边
+						$('#taskListSrc').dblclick(function(){
+						// 左边的也消失了
+						//$("option:selected", this).appendTo('#taskListTarget');
+						add();
+						});
+						
+						// 添加选中的项到右边
+						function add() {
+						var select = $("#taskListSrc option:selected").val();
+						$('#taskListSrc option:selected').attr("disabled", true);
+						$('#taskListTarget').append('<option>' + select + '</option>');
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 全选
+						function addAll() {
+						$('#taskListSrc option').each(function() {
+						if ($(this).attr('disabled') == false) {
+						$(this).attr('disabled', true);
+						
+						var select = $(this).val();
+						$('#taskListTarget').append('<option>' + select + '</option>');
+						}
+						});
+						
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 添加双击反选
+						$('#taskListTarget').dblclick(function(){
+						// 左边的也消失了
+						removeTask();
+						});
+						
+						// 反选
+						function removeTask() {
+						var checkText = $("#taskListTarget").find("option:selected").text();
+						$("#taskListTarget").find("option:selected").remove();
+						
+						$('#taskListSrc option').each(function() {
+						if ($(this).val() == checkText) {
+						$(this).removeAttr('disabled');
+						}
+						});
+						}
+						
+						// 取消全部选中列
+						function removeAll() {
+						$('#taskListTarget').empty();
+						
+						$('#taskListSrc option').each(function() {
+						$(this).removeAttr('disabled');
+						});
+						
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						
+						
+						</script>
+						<script>
+						// 停止任务
+						function stopTask(pageCount, currentPage, pageSizeInt, url) {
+
+						
+						var con = getCondition();
+						con += "&pageCount=" + pageCount;
+						con += "&currentPage=" + currentPage;
+						con += "&pageSizeInt=" + pageSizeInt;
+						
+						//alert(url + con);
+						location.href = url + con;
+						}
+						
+						// 启动任务
+						function startTask(pageCount, currentPage, pageSizeInt, url) {				
+						var con = getCondition();
+						con += "&pageCount=" + pageCount;
+						con += "&currentPage=" + currentPage;
+						con += "&pageSizeInt=" + pageSizeInt;
+						
+						//alert(url + con);
+						location.href = url + con;
+						}
+						
+						// 获取查询条件和分页条件
+						function getCondition() {
+							var con = "&groupNameCriteria=" + $('#groupNameCriteria').val();
+							con += "&host=" + $("#host").get(0).selectedIndex;
+						
+							return con;
+						}
+						</script>
+						#set($uri="jingwei_groups.htm?a=1")
+						#pager($uri $pageCount $currentPage "searchForm" $pageSizeInt)
+						#pagerCss()						

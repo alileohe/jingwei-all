@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="applierConfig" 
+		class="com.taobao.jingwei.webconsole.model.config.applier.DatabaseApplierConfig">
+		<property name="matrixName" value="DEFAULT_MATRIX"></property>
+		<property name="ruleName" value="DEFAULT_RULE"></property>
+		<property name="dbType" value="mysql"></property>
+		<property name="replace" value="false"></property>
+		<property name="failContinue" value="false"></property>
+		<property name="tableMapConfigs">
+			<list>
+				<ref bean="tableMapConfig-1" />
+			</list>
+		</property>
+	</bean>
+	<bean id="tableMapConfig-1" 
+		class="com.taobao.jingwei.webconsole.model.config.applier.TableMapConfig">
+		<property name="sourceTable" value="DEFAULT_SOURCE_TABLE"></property>
+		<property name="targetTable" value="DEFAULT_TARGET_TABLE"></property>
+		<property name="columnMap">
+			<map>
+				<entry key="col1" value="newcol1" />
+				<entry key="col2" value="newcol2" />
+			</map>
+		</property>
+		<property name="filterColumns" value="col1,col2,"></property>
+		<property name="filterUseInclude" value="true"></property>
+	</bean>
+</beans>

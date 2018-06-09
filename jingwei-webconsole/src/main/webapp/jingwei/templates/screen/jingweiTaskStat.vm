@@ -1,0 +1,126 @@
+<table class="jwTable">
+	<tr>
+		<th width="33%">ZK服务器：$!zkHost</th>
+		<th width="33%">任务名 : $!taskId</th>
+		<th width="33%">主机名 : $!hostName</th>
+	</tr>
+</table>
+<br />
+#if($error)
+	<table class="jwTable">
+		<tr>
+			<td align="center"><font color="red"><b>$!error</b></font></td>
+		</tr>
+		<tr>
+			<td align="center"><a href="#" onclick="closeWindow()">返回</a></td>
+		</tr>
+	</table>
+#else
+	<table class="jwTable">
+		<tr>
+			<th width="15%">统计时间</th>
+			<td>$!statTime&nbsp;</td>
+			<th width="15%">下次统计时间</th>
+			<td>$!nextTime&nbsp;<input type="button" class="yugongBtn" value="更新" onclick="window.location.href='$jingweiModule.setTarget('jingweiTaskStat.vm').render()?taskId=$taskId&hostName=$!hostName&host=$!host'" /></td>
+		</tr>
+	</table>
+	<table class="jwTable">
+		<tr>
+			<th>周期事件数</th>
+			<th colspan="5"><a href="$jingweiModule.setTarget('jingweiStatChart.vm').render()?statServer=$!host&key1=$!taskId&key2=$!hostName&key3=lastPeriodInsertCountKey,lastPeriodUpdateCountKey,lastPeriodDeleteCountKey&summaryPeriod=$!summaryPeriod" target="_blank">查看统计图</a></th>
+		</tr>
+		<tr>
+			<td width="10%" align="right">插入</td>
+			<td>$!stats.getLastPeriodInsertCount()&nbsp;</td>
+			<td width="10%" align="right">更新</td>
+			<td>$!stats.getLastPeriodUpdateCount()&nbsp;</td>
+			<td width="10%" align="right">删除</td>
+			<td>$!stats.getLastPeriodDeleteCount()&nbsp;</td>
+		</tr>
+		<tr>
+			<th>平均延迟</th>
+			<th colspan="5"><!--<a href="$jingweiModule.setTarget('jingweiStatChart.vm').render()?statServer=$!host&key1=$!taskId&key2=$!hostName&key3=lastPeriodAvgInsertDelayKey,lastPeriodAvgUpdateDelayKey,lastPeriodAvgDeleteDelayKey,lastPeriodAvgExtractorDelayKey" target="_blank">查看统计图</a>--></th>
+		</tr>
+		<tr>
+			<td align="right">插入</td>
+			<td>$!stats.getLastPeriodAvgInsertDelay() ms&nbsp;</td>
+			<td align="right">更新</td>
+			<td>$!stats.getLastPeriodAvgUpdateDelay() ms&nbsp;</td>
+			<td align="right">删除</td>
+			<td>$!stats.getLastPeriodAvgDeleteDelay() ms&nbsp;</td>
+		</tr>
+		<tr>
+			<td align="right">Extractor</td>
+			<td>$!stats.getLastPeriodAvgExtractorDelay() ms&nbsp;</td>
+			<td colspan="4">&nbsp;</td>
+		</tr>
+		<tr>
+			<th>TPS</th>
+			<th colspan="5"><a href="$jingweiModule.setTarget('jingweiStatChart.vm').render()?statServer=$!host&key1=$!taskId&key2=$!hostName&key3=lastPeriodInsertTpsKey,lastPeriodUpdateTpsKey,lastPeriodDeleteTpsKey&summaryPeriod=$!summaryPeriod" target="_blank">查看统计图</a></th>
+		</tr>
+		<tr>
+			<td align="right">插入</td>
+			<td>$!stats.getLastPeriodInsertTps()&nbsp;</td>
+			<td align="right">更新</td>
+			<td>$!stats.getLastPeriodUpdateTps()&nbsp;</td>
+			<td align="right">删除</td>
+			<td>$!stats.getLastPeriodDeleteTps()&nbsp;</td>
+		</tr>
+		<tr>
+			<th>周期异常数</th>
+			<th colspan="5"><a href="$jingweiModule.setTarget('jingweiStatChart.vm').render()?statServer=$!host&key1=$!taskId&key2=$!hostName&key3=lastPeriodInsertExceptionCountKey,lastPeriodUpdateExceptionCountKey,lastPeriodDeleteExceptionCountKey&summaryPeriod=$!summaryPeriod" target="_blank">查看统计图</a></th>
+		</tr>
+		<tr>
+			<td align="right">插入</td>
+			<td>$!stats.getLastPeriodInsertExceptionCount()&nbsp;</td>
+			<td align="right">更新</td>
+			<td>$!stats.getLastPeriodUpdateExceptionCount()&nbsp;</td>
+			<td align="right">删除</td>
+			<td>$!stats.getLastPeriodDeleteExceptionCount()&nbsp;</td>
+		</tr>
+		<tr>
+			<th colspan="6">今日事件数</th>
+		</tr>
+		<tr>
+			<td align="right">插入</td>
+			<td>$!stats.getTodayInsertCount()&nbsp;</td>
+			<td align="right">更新</td>
+			<td>$!stats.getTodayUpdateCount()&nbsp;</td>
+			<td align="right">删除</td>
+			<td>$!stats.getTodayDeleteCount()&nbsp;</td>
+		</tr>
+		<tr>
+			<th colspan="6">今日异常数</th>
+		</tr>
+		<tr>
+			<td align="right">插入</td>
+			<td>$!stats.getTodayInsertExceptionCount()&nbsp;</td>
+			<td align="right">更新</td>
+			<td>$!stats.getTodayUpdateExceptionCount()&nbsp;</td>
+			<td align="right">删除</td>
+			<td>$!stats.getTodayDeleteExceptionCount()&nbsp;</td>
+		</tr>
+		<tr>
+			<th colspan="6">总事务</th>
+		</tr>
+		<tr>
+			<td align="right">总数</td>
+			<td>$!stats.getTxCount()&nbsp;</td>
+			<td align="right">TPS</td>
+			<td>$!stats.getTxTps()&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td align="right">最小延迟</td>
+			<td>$!stats.getTxMillisMinLatency() ms&nbsp;</td>
+			<td align="right">最大延迟</td>
+			<td>$!stats.getTxMillisMaxLatency() ms&nbsp;</td>
+			<td align="right">平均延迟</td>
+			<td>$!stats.getTxMillisAvgLatency() ms&nbsp;</td>
+		</tr>
+		<tr>
+			<td colspan="6" align="center"><a href="#" onclick="closeWindow();">关闭</a></td>
+		</tr>
+	</table>
+#end

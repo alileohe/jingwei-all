@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="gb2312"?>  
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+<bean id="commonConfig" class="com.taobao.jingwei.webconsole.model.config.CommonConfig">
+	<property name="taskName" value="DEFAULT"></property>
+	<property name="taskInstanceCount" value="1"></property>
+	<property name="useLastPosition" value="true"></property>
+	<property name="statsPeriod" value="10000"></property>
+	<property name="summaryPeriod" value="10000"></property>
+	<property name="comitLogPeriod" value="10000"></property>
+	<property name="comitLogCount" value="10000"></property>
+	<property name="description" value=""></property>
+	<property name="javaOpt" value=""></property>
+	<property name="multiThread" value="true"></property>
+	<property name="queueCapacity" value="256"></property>
+	<property name="maxThreadCount" value="16"></property>
+	<property name="groupingSettings">
+	          <list>
+	         	 <ref bean="groupingConfig-1" />
+	           </list>
+	</property>
+</bean>
+
+<bean id="groupingConfig-1" class="com.taobao.jingwei.webconsole.model.config.GroupingConfig">
+	<property name="schemaReg" value="1"></property>
+	<property name="tableReg" value="true"></property>
+	<property name="fields" value="10000"></property>
+</bean>
+</beans>

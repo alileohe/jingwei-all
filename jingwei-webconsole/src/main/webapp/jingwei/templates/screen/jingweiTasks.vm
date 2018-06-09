@@ -1,0 +1,296 @@
+#if($message)
+	<p>
+	<font color="red">$message</font>
+	</p>
+#end
+
+
+<div>
+	<p>
+	<strong>任务搜索</strong>
+	</p>
+	<form id="searchForm" name="searchForm" action="$jingweiModule.setTarget('jingweiTasks.vm').render()" method="post">
+		##	<input type="hidden" name="action" value="jingweiTaskAction" />
+		##	<input type="hidden" name="event_submit_do_search_task" value="1" />
+		<input type="hidden" name="criteria" value="$!criteria_data" />
+		<table class="jwTable">
+			<tr>
+				<th width="20%">ZK服务器</th>
+				<td>
+					<select name="host" onchange="sbSearch()">
+						#foreach($h in $hosts)
+							<option value="$velocityCount" #if($velocityCount == $host) selected #end>$h</option>
+						#end
+					</select>
+				</td>
+				<th>Extractor类型</th>
+				<td>
+					<select id="extractorType" name="extractorType">
+						<option value=""></option>
+						#foreach($extractor in $!extractorType.entrySet())
+							<option value="$extractor.value" #if($extractor.value == $!criteria.getExtractorType()) selected #end>$extractor.key</option>
+						#end
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th width="20%">TASK ID</th>
+				<td><input type="text" id="sTaskId" name="sTaskId" value="$!criteria.getTaskId()" /></td>
+				<th>Applier类型</th>
+				<td>
+					<select id="applierType" name="applierType">
+						<option value=""></option>
+						#foreach($applier in $!applierType.entrySet())
+							<option value="$applier.value" #if($applier.value == $!criteria.getApplierType()) selected #end>$applier.key</option>
+						#end
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>主机名</th>
+				<td><input type="text" id="hostName" name="hostName" value="$!criteria.getHostName()"/></td>
+				<th>运行状态</th>
+				<td>
+					<select id="runStatus" name="runStatus">
+						<option value=""></option>
+						#foreach($status in $!statusType.entrySet())
+							<option value="$status.value" #if($status.value == $!criteria.getRunStatus()) selected #end>$status.key</option>
+						#end
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">&nbsp;</td>
+				<td><input type="button" class="yugongBtn" value="清空" onclick="clearSearchForm()" /></td>
+				<td><input type="submit" class="yugongBtn" value="搜索" /></td>
+			</tr>
+		</table>
+	</form>
+	<p>
+	<strong>任务列表</strong>
+
+<input type="button" id="all_delete_button" value="全部删除" onclick="delete_tasks('$currentPage', '$pageSizeInt', '$jingweiModule.setTarget("jingweiTasks.vm").addQueryData('action', 'JingweiTaskAction').addQueryData('event_submit_do_delete_select_tasks', 1).addQueryData('host', $!host).render()')" disabled="disabled"></input>
+<script language="javascript">
+	String.prototype.replaceAll = function(s1,s2){  
+		return this.replace(new RegExp(s1,"gm"),s2);   //这里的gm是固定的，g可能表示global，m可能表示multiple。
+	}
+	function delete_tasks(page, pageSize,url) {
+
+		var request_tasks = document.getElementById("all_select_tasks").value;
+		//alert(request_tasks);
+		request_tasks = request_tasks.replaceAll("_checkbox", "");
+		url += "&tasks=" + request_tasks;
+		//alert(url);
+		
+		url = url + getCondition();
+		url += "&page=" + page,
+		url += "&pageSize=" + pageSize;
+		
+		location.href = url;
+	}
+</script>
+<script language="javascript">
+
+	function update(page, pageSize,url) {
+
+		var request_tasks = document.getElementById("all_select_tasks").value;
+		//alert(request_tasks);
+		request_tasks = request_tasks.replaceAll("_checkbox", "");
+		url += "&tasks=" + request_tasks;
+		//alert(url);
+		
+		url = url + getCondition();
+		url += "&page=" + page,
+		url += "&pageSize=" + pageSize;
+		
+		location.href = url;
+	}
+</script>
+	<input type="hidden" id="all_select_tasks" value=""></input>
+	</p>
+	<table class="jwTable">
+		<tr align="center">
+			<th width="24px;"><input type="checkbox" onclick="affect_checkbox(this)"/>全选</th>
+				<script language="javascript">
+					function affect_checkbox(obj) {
+						var checked = obj.checked == true;
+						
+							// 向服务端请求的task名字 ，逗号分隔
+							var  request_tasks = "";
+							
+							var   ckb = document.getElementsByTagName("input");   
+  							for (i = 0; i < ckb.length; i++)   
+ 							{   
+								//alert(ckb[i].disabled);
+ 								//if (ckb[i].type == "checkbox" && ckb[i].disabled == false)   
+								// input的checkbox 并且以_checkbox为后缀，并且不是disable的（不是运行状态的）
+								if (ckb[i].type == "checkbox" && ckb[i].name.indexOf("_checkbox") > 0 && ckb[i].disabled == false) {
+									//alert(ckb[i].disabled);
+									//alert(ckb[i].name); 
+									
+								if (checked) {
+									ckb[i].checked=true; 
+									
+								} else {
+									ckb[i].checked=false;   
+								}
+
+								request_tasks += ckb[i].name + ",";
+								}
+ 							} 
+							if (request_tasks != "") {
+								document.getElementById("all_delete_button").disabled = false;
+								document.getElementById("all_select_tasks").value = request_tasks;
+							} else {
+								document.getElementById("all_delete_button").disabled = true;
+							}
+					}
+                </script>
+			<th>TASK ID</th>
+			<th>机器列表</th>
+			<th>运行状态</th>
+			<th>Extractor类型</th>
+			<th> Applier类型</th>
+			<th>操作</th>
+		</tr>
+		#foreach($asTask in $assembledTasks)
+			<tr align="center">
+				<td><input type="checkbox" name="$!asTask.getTask().getName()_checkbox" #if(!$!asTask.isCanModify()) disabled="disabled" #end onclick="change_all_checkbox()"></td>
+					<script language="javascript">
+						function change_all_checkbox(obj) {
+							var count = 0;
+							var   ckb = document.getElementsByTagName("input");  
+							var request_tasks = "";
+  							for (i = 0; i < ckb.length; i++)   
+ 							{   
+								//alert(ckb[i].disabled);
+ 								//if (ckb[i].type == "checkbox" && ckb[i].disabled == false)
+								// input的checkbox 并且以_checkbox为后缀，并且不是disable的（不是运行状态的）
+								if (ckb[i].type == "checkbox" && ckb[i].name.indexOf("_checkbox") > 0 && ckb[i].disabled == false) {
+									//alert(ckb[i].disabled);
+									//alert(ckb[i].name); 
+									
+									if (ckb[i].checked == true) {
+										count++;
+										
+										request_tasks += ckb[i].name + ",";
+									} 
+								}
+ 							} 
+							//alert(count);
+							if (count > 0) {
+								
+								document.getElementById("all_delete_button").disabled = false;
+								document.getElementById("all_select_tasks").value = request_tasks;	
+							}
+						}
+                    </script>
+				<td><a href="$jingweiModule.setTarget('jingweiTaskDetail.vm').render()?taskId=$asTask.getTask().getName()&host=$!host" target="_blank">$!asTask.getTask().getName()</a></td>
+				<td>#if(!$asTask.getHosts().isEmpty())<table style="border:0px">#foreach($h in $!asTask.getHosts())<tr style="border:0px"><td style="border:0px" align="left">#set($delHost = false)<a title="点击查看统计信息" #if("$!h.getStatus().getStatusEnum().name()" == "RUNNING") style="color:green" #elseif("$!h.getStatus().getStatusEnum().name()" == "STANDBY") style="color:slateblue" #else #set($delHost = true) style="color:red"  #end href="$jingweiModule.setTarget('jingweiTaskStat.vm').render()?taskId=$asTask.getTask().getName()&hostName=$h.getName()&host=$!host" target="_blank">$!h.getName()</a></td><td style="border:0px" align="right">#if($delHost)<a href="#" onclick="deleteHost('$!asTask.getTask().getName()', '$!h.getName()')">删除</a> #end</td></tr>#end</table>#else &nbsp; #end</td>
+				<td>#if(!$asTask.getHosts().isEmpty())<ul>#foreach($h in $!asTask.getHosts())<li>#if($!h.getStatus().getStatusEnum().name()) $!h.getStatus().getStatusEnum().name()	 #else —— #end</li>#end</ul>#else &nbsp; #end</td>
+				#if("$!asTask.getTask().getExtractorType().name()" != "")
+					#set($ext = $asTask.getTask().getExtractorType().name().replace("_EXTRACTOR",""))
+				#end
+				<td>$!ext&nbsp;</td>
+				#if("$!asTask.getTask().getApplierType().name()" != "")
+					#set($app = $asTask.getTask().getApplierType().name().replace("_APPLIER",""))
+				#end
+				<td>$!app&nbsp;</td>
+				<td>
+					<a #if($!asTask.isCanModify()) href="$jingweiModule.setTarget('jingweiUpdateTask.vm').render()?taskId=$!asTask.getTask().getName()&host=$!host" target="_blank" #else href="#" onclick="mess('$!asTask.getTask().getName()')" #end><img border="0" src="$imageModule.getURI('edit.gif')" alt="修改" /></a>
+					&nbsp;
+					<a href="#" #if($!asTask.isCanModify()) onclick='deleteTask("$!asTask.getTask().getName()", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiTasks.vm').addQueryData('action','JingweiTaskAction').addQueryData('taskName',$!asTask.getTask().getName()).addQueryData('host',$host).addQueryData('event_submit_do_delete_task',1).render()")' #else onclick="mess('$!asTask.getTask().getName()')" #end
+					><img border="0" src="$imageModule.getURI('delete.png')" alt="删除" /></a>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+<form id="deleteFom" name="deleteFom" action="$jingweiModule.setTarget('jingweiTasks.vm').render()?host=$!host?extractorType=!$extractorType" method="post">
+	<input type="hidden" name="action" value="jingweiTaskAction" />
+	<input type="hidden" name="event_submit_do_delete_task" value="1"/>
+	<input type="hidden" id="taskId" name="taskId" value="" />
+	<input type="hidden" id="page" name="page" value="" />
+	<input type="hidden" id="pageSize" name="pageSize" value="" />
+</form>
+
+
+<script language="javascript">
+	function deleteTask(taskId, page, pageSize, url){
+		if(confirm("删除任务" + taskId + "。是否继续？")){
+			//alert(url);
+
+			var con = getCondition();
+			
+			con += "&page=" + page,
+			con += "&pageSize=" + pageSize;
+			//alert(url + con);
+			location.href = url + con;
+		}
+	}
+	//this.options[this.selectedIndex].text
+	function getCondition() {
+			var obj = document.getElementById("extractorType");
+			var con = "&extractorType=" + obj.options[obj.selectedIndex].text;
+			
+			obj = document.getElementById("applierType");
+			con += "&applierType=" + obj.options[obj.selectedIndex].text;
+			
+			con += "&hostName=" + document.getElementById("hostName").value;
+			con += "&sTaskId=" + document.getElementById("sTaskId").value;
+			
+			obj = document.getElementById("runStatus");
+			con += "&runStatus=" + obj.options[obj.selectedIndex].text;
+			
+			return con;
+	}
+	function clearSearchForm(){
+		document.getElementById("sTaskId").value = "";
+		document.getElementById("hostName").value ="";
+		document.getElementById("runStatus").options[0].selected = true;
+		document.getElementById("extractorType").options[0].selected = true;
+		document.getElementById("applierType").options[0].selected = true;
+		document.getElementById("searchForm").submit();
+	}
+	function sbSearch(){
+		document.getElementById("searchForm").submit();
+	}
+	function mess(taskName){
+		alert("任务" + taskName +"中，有正在运行的主机，不能修改和删除！\n请先停止运行的主机！");
+	}
+	function deleteHost(taskName,hostName){
+		if(confirm("确认删除主机：" + hostName + "?")){
+			var frm = document.getElementById("searchForm");
+			var task = document.createElement("input");
+			task.setAttribute("type", "hidden");
+			task.setAttribute("name", "taskName");
+			task.value = taskName;
+			var host = document.createElement("input");
+			host.setAttribute("type", "hidden");
+			host.setAttribute("name", "delHost");
+			host.value = hostName;
+			
+			var page = document.createElement("input");
+			page.setAttribute("type", "hidden");
+			page.setAttribute("name", "page");
+			page.value = $currentPage;
+			
+			var pageSize = document.createElement("input");
+			pageSize.setAttribute("type", "hidden");
+			pageSize.setAttribute("name", "pageSize");
+			pageSize.value = $pageSizeInt;
+			
+			frm.appendChild(host);
+			frm.appendChild(task);
+			frm.appendChild(page);
+			frm.appendChild(pageSize);
+			frm.submit();
+		}
+	}
+</script>
+
+#set($uri="jingwei_tasks.htm?a=1")
+#pager($uri $pageCount $currentPage "searchForm" $pageSizeInt)
+#pagerCss()
+
+

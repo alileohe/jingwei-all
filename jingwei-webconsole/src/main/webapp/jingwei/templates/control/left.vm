@@ -1,0 +1,38 @@
+<SCRIPT>
+	function switchTab(prefix,ownPrefix,index,count){
+		for(i=0;i<count;i++){
+			var ContrTabObj = document.getElementById(prefix+i) ;
+			var CurTabObj = document.getElementById(ownPrefix+i) ;
+			if (i != index){
+				ContrTabObj.style.display="none" ;
+				CurTabObj.style.color="#000000" ;
+			}
+			else{
+				ContrTabObj.style.display="" ;
+				CurTabObj.style.color="#0080FF" ;
+			}
+		}
+	}
+	function mouceOn(id){
+		var CurTabObj = document.getElementById(id) ;
+		CurTabObj.style.color="#0080FF" ;
+	}
+	function mouceOut(id){
+		var CurTabObj = document.getElementById(id) ;
+		CurTabObj.style.color="#000000" ;
+	}
+</SCRIPT>
+<div style="border-bottom: 1px solid #EFEFEF;margin-bottom: 14px;margin-left: 10px;margin-right: 4px;margin-top: 14px;"/></div>
+<div>
+	<ul>
+		<li class="mitem msel">精卫填海</li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiRegTask.vm').render()"  title="任务配置">任务配置</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiTasks.vm').render()"  title="任务列表">任务列表</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiMonitors.vm').render()"  title="监控列表">监控列表</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiServers.vm').render()"  title="Server列表">Server列表</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiGroups.vm').render()"  title="Group列表">Group列表</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiUploadTask.vm').render()"  title="上传自定义任务">上传自定义任务</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiTars.vm').render()"  title="管理servertar">servertar</a></li>
+		<li class="mitem"><a class="K1" href="$jingweiModule.setTarget('jingweiRights.vm').render()"  title="权限管理">权限管理</a></li>
+	</ul>
+</div>

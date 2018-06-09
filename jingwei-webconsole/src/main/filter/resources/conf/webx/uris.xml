@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:services="http://www.alibaba.com/schema/services"
+             xmlns="http://www.alibaba.com/schema/services/uris"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.alibaba.com/schema/services http://localhost:8080/schema/services.xsd
+http://www.alibaba.com/schema/services/uris http://localhost:8080/schema/services-uris.xsd
+
+http://www.springframework.org/schema/beans http://localhost:8080/schema/www.springframework.org/schema/beans/spring-beans.xsd">
+	<services:uris>
+		<!-- ================================================================ -->
+		<!-- Server Level： java server。 -->
+		<!-- -->
+		<!-- 使用方法： 不能直接使用，只被其它URI继承。 -->
+		<!-- ================================================================ -->
+		<uri id="jingweiServer">
+			<serverURI>
+				http://${jingwei.domain.name}:${jingwei.domain.port}
+			</serverURI>
+		</uri>
+		<!-- ================================================================ -->
+		<!-- Component Level： webx modules。 -->
+		<!-- -->
+		<!-- 使用方法： link.setTarget('target.jhtml') -->
+		<!-- .addQueryData('name', 'value') -->
+		<!-- ================================================================ -->
+		<!-- home -->
+		<turbine-uri id="homeModule" exposed="true" extends="jingweiServer">
+			<componentPath>jingwei/</componentPath>
+		</turbine-uri>
+		<!-- jingwei -->
+		<turbine-uri id="jingweiModule" exposed="true" extends="jingweiServer">
+			<componentPath>jingwei/</componentPath>
+		</turbine-uri>
+		<servlet-content-uri id="imageModule" extends="jingweiServer" exposed="true">
+			<prefixPath>jingwei/static_resource/images</prefixPath>
+		</servlet-content-uri>
+		<servlet-content-uri id="jsModule" extends="jingweiServer" exposed="true">
+			<prefixPath>jingwei/static_resource/js</prefixPath>
+		</servlet-content-uri>
+		<servlet-content-uri id="cssModule" extends="jingweiServer" exposed="true">
+			<prefixPath>jingwei/static_resource/css</prefixPath>
+		</servlet-content-uri>
+	</services:uris>
+</beans:beans>

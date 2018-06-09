@@ -1,0 +1,238 @@
+#if($messages)
+	<div style="color:red;">$messages</div>
+#end
+<strong>add Batch</strong>
+<form name="taskForm" action="$jingweiModule.setTarget('jingweiBatchs.vm').addQueryData('action', 'JingweiBatchAction').addQueryData('event_submit_do_create_task', 1).addQueryData('host', $host).render()" method="post" onsubmit="sbForm()">
+<table class="jwTable">
+	<tr>
+		<th width="20%">ZK服务器</th>
+		<td>
+			$control.setTemplate("jingweiZkServer.vm")
+		</td>
+	</tr>
+		<tr>
+		<th>批量配置</th>
+		<td colspan="3">
+			<div id="batch-config">
+			<select id="batch-config-list" style="width:300px;">
+				<option>DEFAULT-BATCH</option>
+			</select>
+				<div id="batch-config-template" >
+					<textarea id="batch-config-template-content" name="batchConfig" style="width: 600px; height: 400px; " >$configHolder.getDefaultBatchConfig()
+					</textarea>
+				<div style="display:none">
+					<input type="hidden" id="default-batch-template" value="$configHolder.getDefaultBatchConfig()" ></input>
+				</div>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th>common 配置</th>
+		<td colspan="3">
+			<div id="common-config-confirm">
+				<input type="button" id="common-config-confirm-btn" class="yugongBtn" value="确定" />
+				<input type="button" id="common-config-edit-btn" class="yugongBtn" value="编辑" />
+            </div>
+			<div id="common-config">
+				<div id="common-config-template" >
+					<textarea id="common-config-template-content" name="commonConfig" style="width: 600px; height: 50px; " >$configHolder.getCommonConfig()
+					</textarea>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<th>extractor </th>
+		<td colspan="3">
+			<div>
+			<select id="extractor-config-list" style="width:300px;">
+				<option>MYSQL-EXTRACTOR</option>
+			</select>
+            </div>
+			<div>
+				<textarea id="extractor-template" name="extractorConfig"  style="width: 700px; height: 250px; " >$configHolder.getMysqlExtractorConfig()
+				</textarea>
+				<div id="extractor-config-template"  style="display:none">
+                <input type="hidden" id="extractor-mysql-template" value="$configHolder.getMysqlExtractorConfig()" ></input>
+                <input type="hidden" id="extractor-meta-template" value="$configHolder.getMetaExtractorConfig()" ></input>
+                <input type="hidden" id="extractor-oracle-template" value="$configHolder.getOracleExtractorConfig()" ></input>
+				</div>
+				<div  id="extractor-mysql-props-template" >
+					<p> props配置文件
+					</p>
+					<textarea id="extractor-props-template" name="extractorProps" style="width: 700px; height: 150px; display:block" >$configHolder.getMysqlExtractorProps()
+					</textarea>
+                </div>
+            </div>
+		</td>
+	</tr>
+	<tr>
+		<th>applier</th>
+		<td colspan="3">
+			<div>
+			<select id="applier-config-list" style="width:300px;">
+				<option>DATABASE-APPLIER</option>
+				<option>META-APPLIER</option>
+				<option>MULTI-META-APPLIER</option>
+				<option>CUSTOMER-APPLIER</option>
+			</select>
+            </div>
+			<div>
+				<textarea id="applier-template"  name="applierConfig" style="width: 700px; height: 250px; " >$configHolder.getDatabaseApplierConfig()
+				</textarea>
+				<div id="applier-config-template"  style="display:none">
+                <input type="hidden" id="applier-database-template" value="$configHolder.getDatabaseApplierConfig()" ></input>
+                <input type="hidden" id="applier-meta-template" value="$configHolder.getMetaApplierConfig()" ></input>
+                <input type="hidden" id="applier-mutilmeta-template" value="$configHolder.getMultiMetaApplierConfig()" ></input>
+				</div>
+            </div>
+		</td>
+	</tr>
+	<tr>
+		<th>filter</th>
+		<td colspan="3">
+			<div id="filter-config">
+				
+				<div id="filter-config-template" >
+					<textarea id="filter-template-content" name="filterConfig" style="width: 600px; height: 400px; " >$configHolder.getCommonFilterConfig()
+					</textarea>
+				</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td colspan="3">
+			<input type="submit" id="add-task-btn"  class="yugongBtn" onclick='#' value="注册" />
+			&nbsp;
+			<input class="yugongBtn" type="reset" value="重置" />
+		</td>
+	</tr>
+</table>
+</form>
+
+<script language="javascript">
+	$("#extractor-config-list").change(function() {
+		var selectedItem = $("#extractor-config-list").find("option:selected").text();
+		//alert($("#extractor-mysql-template").val());
+		if (selectedItem == "MYSQL-EXTRACTOR"){
+			props = $("#extractor-mysql-template").val();
+			$("#extractor-template").val(props);
+			$("#extractor-mysql-props-template").show();
+		}
+		else if (selectedItem == "META-EXTRACTOR") {
+			props = $("#extractor-meta-template").val();
+			$("#extractor-template").val(props);
+			$("#extractor-mysql-props-template").hide();
+		}
+		else if (selectedItem == "ORACLE-EXTRACTOR") {
+		
+			props = $("#extractor-oracle-template").val();
+			$("#extractor-template").val(props);
+			$("#extractor-mysql-props-template").hide();
+		}   
+		
+		// alert($("#extractor-config-list option[@selected]").text());
+		//  $("#selectTest").attr("value", "2");
+	}
+	);
+	
+	$("#applier-config-list").change(function() {
+		var selectedItem = $("#applier-config-list").find("option:selected").text();
+		//alert($("#extractor-mysql-template").val());
+		if (selectedItem == "DATABASE-APPLIER"){
+			props = $("#applier-database-template").val();
+			$("#applier-template").val(props);
+		}
+		else if (selectedItem == "META-APPLIER") {
+			props = $("#applier-meta-template").val();
+			$("#applier-template").val(props);
+		}
+		else if (selectedItem == "MULTI-META-APPLIER") {
+		
+			props = $("#applier-mutilmeta-template").val();
+			$("#applier-template").val(props);
+		}   
+		else if (selectedItem == "CUSTOMER-APPLIER") {
+
+			$("#applier-template").val("");
+		}  
+		// alert($("#extractor-config-list option[@selected]").text());
+		//  $("#selectTest").attr("value", "2");
+	}
+	);
+	
+	$("#batch-config-list").change(function() {
+		var selectedItem = $("#batch-config-list").find("option:selected").text();
+		alert($("#batch-config-template-content").val());
+		if (selectedItem == "DEFAULT-BATCH"){
+			props = $("#default-batch-template").val();
+			$("#batch-config-template-content").val(props);
+		}
+	}
+	);
+	
+	$(function(){ 
+        var $Content=$("#common-config-template-content"); 
+        $("#common-config-confirm-btn").bind("click",function(){ 
+		
+            //判断big为span的标签是否正在进行动画效果 
+            if (!$Content.is("animated")) { 
+                if ($Content.height() > 50) { 
+                    //高度累加,隔0.4秒执行animate 
+                    $Content.animate({height:"50"}) 
+                } 
+            } 
+        });
+        $("#common-config-edit-btn").bind("click",function(){ 
+		
+            //判断big为span的标签是否正在进行动画效果 
+            if (!$Content.is("animated")) { 
+                if ($Content.height() < 400) { 
+                    //高度累加,隔0.4秒执行animate 
+                    $Content.animate({height:"400"}) 
+                } 
+            } 
+        });		
+     }); 
+	 
+	 function zoom(txarea, zoomInBtn, zoomOutBtn) {
+	             var $Content=$("#common-config-template-content"); 
+        $("#common-config-confirm-btn").bind("click",function(){ 
+		
+            //判断big为span的标签是否正在进行动画效果 
+            if (!$Content.is("animated")) { 
+                if ($Content.height() > 50) { 
+                    //高度累加,隔0.4秒执行animate 
+                    $Content.animate({height:"50"}) 
+                } 
+            } 
+        });
+        $("#common-config-edit-btn").bind("click",function(){ 
+		
+            //判断big为span的标签是否正在进行动画效果 
+            if (!$Content.is("animated")) { 
+                if ($Content.height() < 400) { 
+                    //高度累加,隔0.4秒执行animate 
+                    $Content.animate({height:"400"}) 
+                } 
+            } 
+        });	
+	 }
+	
+
+</script>
+<script language="javascript">
+/*
+      var newEditor = CodeMirror.fromTextArea(document.getElementById("common-config-template-content"),{
+            mode:{name: "xmlpure"}
+      });
+	  
+	  var newEditor = CodeMirror.fromTextArea(document.getElementById("filter-template-content"),{
+            mode:{name: "xmlpure"}
+      });
+	  */
+</script>
+
+

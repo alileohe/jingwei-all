@@ -1,0 +1,16 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>mysql运维中心——精卫填海</title>
+		$control.setTemplate("tbraControl.vm")
+	</head>
+<body class="yui-skin-sam">
+	<div id="header">$control.setTemplate("top.vm")</div>
+	<div id="contain">
+		<div id="mainbg">
+			<div>$screen_placeholder</div>
+		</div>
+	</div>
+	<div id="footer">$control.setTemplate("footer.vm")</div>
+</body>
+</html>

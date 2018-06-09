@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"  
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="permission">
+
+	<resultMap id="PermissionResult"
+		class="com.taobao.jingwei.webconsole.biz.dao.model.JwPermission">
+		<result property="id" column="id" />
+		<result property="roleName" column="role_name" />
+		<result property="resourceName" column="resource_name" />
+		<result property="resourceType" column="resource_type" />
+		<result property="zkEnv" column="zk_env" />
+	</resultMap>
+
+	<typeAlias alias="JwPermission"
+		type="com.taobao.jingwei.webconsole.biz.dao.model.JwPermission" />
+
+	<insert id="insert" parameterClass="JwPermission">
+		insert into
+		jw_permission(role_name, resource_name, resource_type, zk_env)
+		values(#roleName#,
+		#resourceName#, #resourceType#, #zkEnv#)
+	</insert>
+
+	<select id="getAll" parameterClass="java.util.Map" resultMap="PermissionResult">
+		select id, role_name, resource_name, resource_type, zk_env
+		from jw_permission where zk_env=#zkEnv#
+	</select>
+
+	<delete id="deleteById" parameterClass="java.util.Map">
+	   <![CDATA[ 
+	    delete from jw_permission where id=#id# and zk_env=#zkEnv#
+	   ]]>
+	</delete>
+
+	<select id="selectByRoleName" parameterClass="java.util.Map"
+		resultMap="PermissionResult">
+		select id, role_name, resource_name, resource_type, zk_env
+		from
+		jw_permission where role_name=#roleName# and zk_env=#zkEnv#
+	</select>
+
+</sqlMap> 

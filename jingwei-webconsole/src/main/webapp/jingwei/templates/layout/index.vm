@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>精卫填海-任务管理</title>
+		$control.setTemplate("tbraControl.vm")
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/button/assets/skins/sam/button.css" />
+	</head>
+<body class="yui-skin-sam">
+	<div id="header">$control.setTemplate("top.vm")</div>
+	<div id="contain">
+		<div id="mainbg">
+			<div id="left">
+				<div>$control.setTemplate("left.vm")</div>
+			</div>
+			<div id="right">
+				<div >$screen_placeholder</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">$control.setTemplate("footer.vm")</div>
+</body>
+</html>

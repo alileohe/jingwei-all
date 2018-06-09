@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"  
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="userrole">
+
+	<resultMap id="UserRoleResult"
+		class="com.taobao.jingwei.webconsole.biz.dao.model.JwUserRole">
+		<result property="id" column="id" />
+		<result property="roleName" column="role_name" />
+		<result property="nickName" column="nick_name" />
+		<result property="zkEnv" column="zk_env" />
+	</resultMap>
+
+	<typeAlias alias="JwUserRole"
+		type="com.taobao.jingwei.webconsole.biz.dao.model.JwUserRole" />
+
+	<insert id="insert" parameterClass="JwUserRole">
+		insert into
+		jw_user_role(role_name, nick_name, zk_env)
+		values(#roleName#,	#nickName#, #zkEnv#)
+	</insert>
+
+	<select id="getAll" parameterClass="JwPermission" resultMap="UserRoleResult">
+		select id, role_name, nick_name, zk_env
+		from jw_user_role
+	</select>
+	
+	<select id="selectByNickName" parameterClass="java.util.Map"  resultMap="UserRoleResult">
+		select id, role_name, nick_name, zk_env
+		from
+		jw_user_role where nick_name=#nickName# and zk_env=#zkEnv#
+	</select>
+
+	<delete id="deleteById" parameterClass="java.util.Map">
+	   <![CDATA[ 
+	    delete from jw_user_role where id=#id# and zk_env=#zkEnv#
+	   ]]>
+	</delete>
+
+	<select id="selectByRoleName" parameterClass="java.util.Map"
+		resultMap="UserRoleResult">
+		select id, role_name, nick_name, zk_env
+		from
+		jw_user_role where role_name=#roleName# and zk_env=#zkEnv#
+	</select>
+	
+	<select id="selectByUserAndRole" parameterClass="java.util.Map"
+		resultMap="UserRoleResult">
+		select id, role_name, nick_name, zk_env
+		from
+		jw_user_role where role_name=#roleName# and nick_name=#nickName# and zk_env=#zkEnv#
+	</select>
+	
+	<select id="getAllDistinctRoleNames" parameterClass="java.util.Map" resultClass="String">
+		select distinct role_name
+		from
+		jw_user_role where zk_env=#zkEnv#
+	</select>
+	
+
+</sqlMap> 

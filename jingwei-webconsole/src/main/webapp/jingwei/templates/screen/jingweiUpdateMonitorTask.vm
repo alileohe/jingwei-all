@@ -1,0 +1,264 @@
+#if($messages)
+	<table>
+		<tr>
+			<td style="color:red;">$messages</td>
+		</tr>
+	</table>
+#end
+<form action="$jingweiModule.setTarget('jingweiUpdateMonitorTask.vm').addQueryData('action','JingweiMonitorAction').addQueryData('event_submit_do_update_monitor_task',1).render()" method="post">
+	<input type="hidden" name="host" value=$host />
+	<input type="hidden" name="monitorName" value="$JingweiMonitorTask.monitorName" />
+	<input type="hidden" name="taskName" value="$JingweiMonitorTask.taskName" />
+	<input type="hidden" name="isGroup" value=$isGroupBa />
+	<table class="jwTable">
+		<tr>
+			<th>ZK服务器</th>
+			<td>$hostName</td>
+		</tr>
+		<tr>
+			<th>最小实例数</th>
+			<td><input name="taskInstanceCount" id="taskInstanceCount" value=$JingweiMonitorTask.taskInstanceCount maxlength="9" onkeyup="isNumber(this)" ></input></td>
+			<th>任务名 or group名 </th>
+			<td >$JingweiMonitorTask.taskName</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描统计数据周期</th>
+			<td width="25%"><input name="scanStatsPeriod" id="scanStatsPeriod" value=$JingweiMonitorTask.scanStatsPeriod maxlength="9" onkeyup="isNumber(this)"/>ms</td>
+			<th width="15%">冻结周期</th>
+			<td width="25%"><input name="thresholdFrozenPeriod" id="thresholdFrozenPeriod" value=$JingweiMonitorTask.thresholdFrozenPeriod maxlength="9" onkeyup="isNumber(this)" />ms</td>
+			<th width="15%">告警开关</th>
+			<td>
+				#if ($JingweiMonitorTask.thresholdToggle)
+					<input type="checkbox" name="thresholdToggle" id="thresholdToggle" checked="true">
+				#else
+					<input type="checkbox" name="thresholdToggle" id="thresholdToggle" >
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描alarm数据周期</th>
+			<td><input name="scanAlarmPeriod" id="scanAlarmPeriod" value=$JingweiMonitorTask.scanAlarmPeriod maxlength="9" onkeyup="isNumber(this)"/>ms</td>
+			<th width="15%">冻结周期</th>
+			<td>
+				<input name="alarmFrozenPeriod"  id="alarmFrozenPeriod" value=$JingweiMonitorTask.alarmFrozenPeriod maxlength="9" onkeyup="isNumber(this)"/>
+				ms
+			</td>
+			<th width="15%">告警开关</th>
+			<td>
+				#if ($JingweiMonitorTask.alarmToggle)
+					<input type="checkbox" name="alarmToggle" id="alarmToggle" checked="true">
+				#else
+					<input type="checkbox" name="alarmToggle" id="alarmToggle">
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描心跳数据周期</th>
+			<td>
+				<input name="scanHeartBeatPeriod" id="scanHeartBeatPeriod" value=$JingweiMonitorTask.scanHeartBeatPeriod maxlength="9" onkeyup="isNumber(this)" />
+				ms
+			</td>
+			<th width="15%">冻结周期</th>
+			<td>
+				<input name="heartBeatFrozenPeriod" id="heartBeatFrozenPeriod" value=$JingweiMonitorTask.heartBeatFrozenPeriod maxlength="9" onkeyup="isNumber(this)" />
+				ms
+			</td>
+			<th width="15%">告警开关</th>
+			<td>
+				#if ($JingweiMonitorTask.heartBeatToggle)
+					<input type="checkbox" name="heartBeatToggle" id="heartBeatToggle" checked="true">
+				#else
+					<input type="checkbox" name="heartBeatToggle" id="heartBeatToggle">
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">位点多长时间没有变化</th>
+			<td>
+				<input name="positionAlarmThreshold" id="positionAlarmThreshold" value=$JingweiMonitorTask.positionAlarmThreshold maxlength="9" onkeyup="isNumber(this)" />
+				ms
+			</td>
+			<th width="15%">冻结周期</th>
+			<td>
+				<input name="positionFrozenPeriod" id="positionFrozenPeriod" value=$JingweiMonitorTask.positionFrozenPeriod maxlength="9" onkeyup="isNumber(this)" />
+				ms
+			</td>
+			<th width="15%">告警开关</th>
+			<td>
+				#if ($JingweiMonitorTask.positionToggle)
+					<input type="checkbox" name="positionToggle" id="positionToggle" checked="true">
+				#else
+					<input type="checkbox" name="positionToggle" id="positionToggle">
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">位点落后多长时间阀值</th>
+			<td>
+				<input name="positionDelayAlarmThreshold" id="positionDelayAlarmThreshold" value=$JingweiMonitorTask.positionDelayAlarmThreshold maxlength="9" onkeyup="isNumber(this)" />
+				ms
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">插入TPS上限</th>
+			<td>
+				<input name="tpsUpperInsertThreshold" id="tpsUpperInsertThreshold"  value=$JingweiMonitorTask.tpsUpperInsertThreshold  maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if ($JingweiMonitorTask.toggleTpsUpperInsertThreshold)
+					<input type="checkbox" name="toggleTpsUpperInsertThreshold" id="toggleTpsUpperInsertThreshold" checked="true">
+				#else
+					<input type="checkbox" name="toggleTpsUpperInsertThreshold" id="toggleTpsUpperInsertThreshold" >
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">插入TPS下限</th>
+			<td>
+				<input name="tpsLowerInsertThreshold" id="tpsLowerInsertThreshold" value=$JingweiMonitorTask.tpsLowerInsertThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleTpsLowerInsertThreshold" id="toggleTpsLowerInsertThreshold" #if($JingweiMonitorTask.toggleTpsLowerInsertThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">更新TPS上限</th>
+			<td>
+				<input name="tpsUpperUpdateThreshold" id="tpsUpperUpdateThreshold" value=$JingweiMonitorTask.tpsUpperUpdateThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleTpsUpperUpdateThreshold" id="toggleTpsUpperUpdateThreshold"  #if($JingweiMonitorTask.toggleTpsUpperUpdateThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">更新TPS下限</th>
+			<td>
+				<input name="tpsLowerUpdateThreshold" id="tpsLowerUpdateThreshold" value=$JingweiMonitorTask.tpsLowerUpdateThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleTpsLowerUpdateThreshold" id="toggleTpsLowerUpdateThreshold" #if($JingweiMonitorTask.toggleTpsLowerUpdateThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">删除TPS上限</th>
+			<td>
+				<input name="tpsUpperDeleteThreshold" id="tpsUpperDeleteThreshold" value=$JingweiMonitorTask.tpsUpperDeleteThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleTpsUpperDeleteThreshold" id="toggleTpsUpperDeleteThreshold" #if($JingweiMonitorTask.toggleTpsUpperDeleteThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">删除TPS下限</th>
+			<td>
+				<input name="tpsLowerDeleteThreshold" id="tpsLowerDeleteThreshold" value=$JingweiMonitorTask.tpsLowerDeleteThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleTpsLowerDeleteThreshold" id="toggleTpsLowerDeleteThreshold" #if($JingweiMonitorTask.toggleTpsLowerDeleteThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">插入平均延迟告警阈值</th>
+			<td>
+				<input name="insertDelayThreshold" id="insertDelayThreshold" value=$JingweiMonitorTask.insertDelayThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleInsertDelayThreshold" id="toggleInsertDelayThreshold"    #if($JingweiMonitorTask.toggleInsertDelayThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">修改平均延迟告警阈值</th>
+			<td>
+				<input name="updateDelayThreshold" id="updateDelayThreshold" value=$JingweiMonitorTask.updateDelayThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleUpdateDelayThreshold" id="toggleUpdateDelayThreshold"    #if($JingweiMonitorTask.toggleUpdateDelayThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">删除平均延迟告警阈值</th>
+			<td>
+				<input name="deleteDelayThreshold" id="deleteDelayThreshold" value=$JingweiMonitorTask.deleteDelayThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleDeleteDelayThreshold" id="toggleDeleteDelayThreshold"   #if($JingweiMonitorTask.toggleDeleteDelayThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">extractor平均延迟告警阈值</th>
+			<td>
+				<input name="extractorDelayThreshold" id="extractorDelayThreshold" value=$JingweiMonitorTask.extractorDelayThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleExtractorDelayThreshold" id="toggleExtractorDelayThreshold"  #if($JingweiMonitorTask.toggleExtractorDelayThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">插入异常阈值</th>
+			<td>
+				<input name="insertExceptionThreshold" id="insertExceptionThreshold" value=$JingweiMonitorTask.insertExceptionThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleInsertExceptionThreshold" id="toggleInsertExceptionThreshold" #if($JingweiMonitorTask.toggleInsertExceptionThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">修改异常阈值</th>
+			<td>
+				<input name="updateExceptionThreshold" id="updateExceptionThreshold" value=$JingweiMonitorTask.updateExceptionThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleUpdateExceptionThreshold" id="toggleUpdateExceptionThreshold" #if($JingweiMonitorTask.toggleUpdateExceptionThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">删除异常阈值</th>
+			<td>
+				<input name="deleteExceptionThreshold" id="deleteExceptionThreshold" value=$JingweiMonitorTask.deleteExceptionThreshold   maxlength="9" onkeyup="isNumber(this)" />
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="toggleDeleteExceptionThreshold" id="toggleDeleteExceptionThreshold"  #if($JingweiMonitorTask.toggleDeleteExceptionThreshold) checked #end/>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">短信通知人</th>
+			<td colspan="1">
+				<input name="smsAlertUsers" id="smsAlertUsers" value="$JingweiMonitorTask.smsAlertUsers" /><br/>
+				<span style="color:red">&nbsp; (短信通知人的手机号码，以逗号分隔) </span>
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="isSmToggle" id="isSmToggle" #if ($JingweiMonitorTask.isSmToggle()) checked #end>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">旺旺通知人</th>
+			<td colspan="1">
+				<input name="wwAlertUsers" id="wwAlertUsers"  value="$JingweiMonitorTask.wwAlertUsers" /><br/>
+				<span style="color:red">&nbsp; (旺旺通知人的 账户，以逗号分隔) </span>
+			</td>
+			<th width="15%">是否启用</th>
+			<td>
+				<input type="checkbox" name="isWwToggle" id="isWwToggle" #if ($JingweiMonitorTask.isWwToggle()) checked #end>
+			</td>
+			
+		</tr>
+	</table>
+	<div align="center">
+		<input type="submit" value="确定"  class="yugongBtn"/>
+		<input type="reset" value="重置" class="yugongBtn"/>
+	</div>
+</form>

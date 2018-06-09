@@ -1,0 +1,2 @@
+<div id="copyright">&copy; 2011 JAVA分布式数据层</div>
+<div id="server-num" style="color:#FFFFFF;text-align: center">$systemUtil.hostInfo.name</div>

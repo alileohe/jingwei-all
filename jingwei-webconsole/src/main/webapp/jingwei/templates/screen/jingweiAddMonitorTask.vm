@@ -1,0 +1,461 @@
+#if($messages)
+	<table>
+		<tr>
+			<td style="color:red;">$messages</td>
+		</tr>
+	</table>
+#end
+<form action="$jingweiModule.setTarget('jingweiAddMonitorTask.vm').addQueryData('action','JingweiMonitorAction').addQueryData('event_submit_do_add_monitor_task',1).render()" onsubmit="return taskInput();" method="post">
+	<input type="hidden" name="host" value=$host />
+	<input type="hidden" name="monitorName" value=$monitorName />
+	<input type="hidden" name="isGroup" id="isGroup" value="false" />
+	<table class="jwTable">
+		<tr>
+			<th>ZK服务器</th>
+			<td>$hostName</td>
+		</tr>
+		<tr>
+			<th>最小实例数</th>                        
+			<td><input name="taskInstanceCount" id="taskInstanceCount" value="1" maxlength="9" onkeyup="isNumber(this)" /></td>
+			<th>任务名  or group名</th>
+			<td ><input name="taskName" id="taskName" readonly="readonly" ></td>
+			<td><a onclick="document.getElementById('taskName').value ='', popupDiv('pop_div');"  class="yugongLink" cursor="pointer;"><img border="0" src="$imageModule.getURI('add.gif')" alt="添加任务" title="添加任务" /></a></td>
+			<td><a onclick="document.getElementById('taskName').value ='', popupDiv('pop_group_div');"  class="yugongLink" cursor="pointer;"><img border="0" src="$imageModule.getURI('add.png')" alt="添加group" title="添加group" /></a></td>
+		</tr>
+		<tr>
+			<th width="20%">扫描alarm数据周期</th>
+			<td width="25%"><input name="scanAlarmPeriod" id="scanAlarmPeriod" value="5000" maxlength="9" onkeyup="isNumber(this)" />ms</td>
+			<th width="15%">冻结周期</th>
+			<td  width="25%">
+				<input name="alarmFrozenPeriod"  id="alarmFrozenPeriod" value="300000" maxlength="9" onkeyup="isNumber(this)" />ms
+			</td>
+			<th width="15%">告警开关</th>
+			<td>
+				<input type="checkbox" name="alarmToggle" id="alarmToggle" checked>
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描心跳数据周期</th>
+			<td>
+				<input name="scanHeartBeatPeriod" id="scanHeartBeatPeriod" value="15000" maxlength="9" onkeyup="isNumber(this)" />ms
+			</td>
+			<th width="15%">冻结周期</th>
+			<td>
+				<input name="heartBeatFrozenPeriod" id="heartBeatFrozenPeriod" value="300000" maxlength="9" onkeyup="isNumber(this)" />ms
+			</td>
+			<th width="15%">告警开关</th>
+			<td>
+				<input type="checkbox" name="heartBeatToggle" id="heartBeatToggle" checked>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">短信通知人</th>
+			<td colspan="3">
+				<input name="smsAlertUsers" id="smsAlertUsers"/>
+				<span style="color:red">&nbsp; (短信通知人的手机号码，以半角逗号","分隔) </span>
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">旺旺通知人</th>
+			<td colspan="3">
+				<input name="wwAlertUsers" id="wwAlertUsers"/>
+				<span style="color:red">&nbsp; (旺旺通知人的账户，以半角逗号","分隔) </span>
+			</td>
+		</tr>
+	</table>
+	
+		<hr width="150px;" align="left"/>
+		<div style="margin-top:10px;margin-bottom:10px;margin-left:20px;">
+			<span id="selectAdvance" class="yugongLink" style="cursor:pointer;">高级配置 >>></span>
+		</div>
+		<hr width="150px;" align="left"/>
+		<div id="advanceSetting" style="display:none">
+			<table class="jwTable">
+				<tr>
+					<th width="20%">扫描统计数据周期</th>
+					<td width="25%"><input name="scanStatsPeriod" id="scanStatsPeriod" value="5000" maxlength="9" onkeyup="isNumber(this)"/>ms</td>
+					<th width="15%">冻结周期</th>
+					<td width="25%"><input name="thresholdFrozenPeriod" id="thresholdFrozenPeriod" value="300000" maxlength="9" onkeyup="isNumber(this)" />ms</td>
+					<th width="15%">告警开关</th>
+					<td>
+						<input type="checkbox" name="thresholdToggle" id="thresholdToggle">
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">插入TPS上限</th>
+					<td>
+						<input name="tpsUpperInsertThreshold" id="tpsUpperInsertThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsUpperInsertThreshold" id="toggleTpsUpperInsertThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">插入TPS下限</th>
+					<td>
+						<input name="tpsLowerInsertThreshold" id="tpsLowerInsertThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsLowerInsertThreshold" id="toggleTpsLowerInsertThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">更新TPS上限</th>
+					<td>
+						<input name="tpsUpperUpdateThreshold" id="tpsUpperUpdateThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsUpperUpdateThreshold" id="toggleTpsUpperUpdateThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">更新TPS下限</th>
+					<td>
+						<input name="tpsLowerUpdateThreshold" id="tpsLowerUpdateThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsLowerUpdateThreshold" id="toggleTpsLowerUpdateThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">删除TPS上限</th>
+					<td>
+						<input name="tpsUpperDeleteThreshold" id="tpsUpperDeleteThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsUpperDeleteThreshold" id="toggleTpsUpperDeleteThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="20%">删除TPS下限</th>
+					<td>
+						<input name="tpsLowerDeleteThreshold" id="tpsLowerDeleteThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleTpsLowerDeleteThreshold" id="toggleTpsLowerDeleteThreshold"/>
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">插入平均延迟告警阈值</th>
+					<td>
+						<input name="insertDelayThreshold" id="insertDelayThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleInsertDelayThreshold" id="toggleInsertDelayThreshold"   />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">修改平均延迟告警阈值</th>
+					<td>
+						<input name="updateDelayThreshold" id="updateDelayThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleUpdateDelayThreshold" id="toggleUpdateDelayThreshold"   />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">删除平均延迟告警阈值</th>
+					<td>
+						<input name="deleteDelayThreshold" id="deleteDelayThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleDeleteDelayThreshold" id="toggleDeleteDelayThreshold"  />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">extractor平均延迟告警阈值</th>
+					<td>
+						<input name="extractorDelayThreshold" id="extractorDelayThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleExtractorDelayThreshold" id="toggleExtractorDelayThreshold" />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">插入异常阈值</th>
+					<td>
+						<input name="insertExceptionThreshold" id="insertExceptionThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleInsertExceptionThreshold" id="toggleInsertExceptionThreshold" />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">修改异常阈值</th>
+					<td>
+						<input name="updateExceptionThreshold" id="updateExceptionThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleUpdateExceptionThreshold" id="toggleUpdateExceptionThreshold" />
+					</td>
+				</tr>
+				<tr>
+					<th width="25%">删除异常阈值</th>
+					<td>
+						<input name="deleteExceptionThreshold" id="deleteExceptionThreshold"    maxlength="9" onkeyup="isNumber(this)" />
+					</td>
+					<th width="15%">是否启用</th>
+					<td>
+						<input type="checkbox" name="toggleDeleteExceptionThreshold" id="toggleDeleteExceptionThreshold" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div align="center">
+			<span style="margin-right:140px;"></span>
+			<input type="submit" value="确定"  class="yugongBtn" />
+			<input type="reset" value="重置" onclick="clearThreshold();" class="yugongBtn"/>
+		</div>
+</form>
+<div id='pop_div' class="pop_box">
+	<div class="p_head">
+		<div class="p_h_x">选择任务 ：</div>
+		<div style="float:right;">
+			<input type="button" class="p_btn"  onclick="hideDiv('pop_div');" title="关闭窗口" value="关闭">
+			</input>
+		</div>
+    </div>
+	<div>
+		<div style="clear:both;padding:10px;">
+		<table>
+			<tr>
+				<td align="right">
+					<select id="taskListSrc" size="10" class="box" name="taskListSrc">
+						#foreach($element in $tasks)
+							<option>$element</option>
+						#end
+					</select>
+				</td>
+				<td align="center">
+					<input type="button" class="p_btn" value="全选>>" onclick="addAll()" /><br/>
+					<input type="button" class="p_btn" value="添加->" onclick="addTask()" /><br/>
+					<input type="button" class="p_btn" value="<-删除" onclick="removeTask()" /><br/>
+					<input type="button" class="p_btn" value="<<全消" onclick="removeAll()" />
+				</td>
+				<td align="left">
+					<select id="taskListTarget" size="10" class="box" name="taskListTarget">
+					</select>
+				</td>
+			</tr>
+		</table>
+		</div>
+		<div style="float:right">		
+			<input id="confirm_select_task" type="button" value="确定" class="p_btn"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+			<input id="reset_select_task" type="reset" value="重置" onclick="clearFm()" class="p_btn"/> 
+		</div>					
+	</div>
+</div>
+
+<div id='pop_group_div' class="pop_box" width="250px;">
+	<div class="p_head">
+		<div class="p_h_x">选择group：</div>
+		<div style="float:right;">
+			<input type="button" class="p_btn"  onclick="hideDiv('pop_group_div');" title="关闭窗口" value="关闭">
+			</input>
+		</div>
+    </div>
+	<div>
+		<div style="clear:both;padding:10px;">
+		<table>
+			<tr>
+				<td align="center" >
+						<input name="select_group" readonly="readonly"  id="select_group" type="text"  size="34" />
+				</td>
+			</tr>
+			<tr>
+				<td align="center" >
+					<span style="float:left; padding-left:3px;">
+						<select id="groupListSrc" size="10" class="box" name="groupListSrc"  >
+						#foreach($element in $candidateGroups)
+							<option>$element</option>
+						#end
+						</select>
+					</span>
+                </td>
+            </tr>
+		</table>
+		</div>
+		<div style="float:right; padding-top: 20px;">		
+			<input id="confirm_select_group" type="button" value="确定" class="p_btn"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+		</div>					
+	</div>
+</div>
+<script language="javascript">
+		// 添加双击选中的项
+	$('#groupListSrc').dblclick(function(){
+	
+		if($('#groupListSrc option:selected').attr("disabled") == null) {
+			return;
+		}
+		
+		var select_group = $("option:selected", this).val();
+		$('#select_group').val(select_group);
+		//alert(select_group);
+    });
+	
+	$('#confirm_select_group').click(function(){
+		var select_group =$('#select_group').val(select_group);
+		//alert(select_group);
+		
+		// 输出到任务输入框
+		$("#taskName").val(select_group);
+		
+		document.getElementById("isGroup").value =  true
+
+		//alert(document.getElementById("isGroup").value);
+		
+		hideDiv("pop_group_div");
+    });
+	
+</script>
+<script language="javascript">
+	// 弹出div
+	function popupDiv(div_id){
+		var div_obj = $("#" + div_id);
+		
+		//窗口宽度,高度
+		var winWidth = $(window).width();
+		var winHeight = $(window).height();
+		
+		//弹出的div的宽度,高度
+		var popHeight = div_obj.height();
+		var popWidth = div_obj.width();
+		div_obj.animate( { opacity: "show", left: (winWidth-popWidth) / 2, 
+				top: (winHeight-popHeight)/2, width:popWidth,height:popHeight}
+		, 300);
+	}
+	
+	// 隐藏div
+	function hideDiv(div_id){
+		$("#" + div_id).animate({opacity: "hide" }
+		, 300);
+	}
+	
+	// 拖拽
+	$(function(){
+		$(".pop_box").easydrag();
+		$(".pop_box").setHandler(".pop_box .p_head");
+	});
+	
+	// 把选择的任务填写到任务输入框
+	$(function(){
+		$("#confirm_select_task").click(function() {
+			var data = "";
+			 $('#taskListTarget option').each(function() {
+				 data += $(this).val();
+				 data += ",";
+			 });
+
+			data = data.substr(0, data.length - 1);
+			
+			// 输出到任务输入框
+			$("#taskName").val(data);
+			
+			document.getElementById("isGroup").value =  false
+				
+			hideDiv("pop_div");
+		});
+	});
+
+</script>
+<script language="javascript">
+	// 添加选中的项到右边
+	function addTask(){
+		if ($('#taskListSrc')[0].selectedIndex < 0) {
+			return;
+		}
+		add();
+	}		
+	
+	// 添加双击选中的项到右边
+	$('#taskListSrc').dblclick(function(){
+		if($('#taskListSrc option:selected').attr("disabled") == null) {
+			return;
+		}
+		// 左边的也消失了
+		//$("option:selected", this).appendTo('#taskListTarget');
+		add();
+    });
+	
+	// 添加选中的项到右边
+	function add() {
+		var select = $("#taskListSrc option:selected").val();
+		$('#taskListSrc option:selected').attr("disabled", true);
+		$('#taskListTarget').append('<option>' + select + '</option>');
+		$('#taskListSrc')[0].selectedIndex = -1;
+	}
+	
+	// 全选
+	function addAll() {			
+		$('#taskListSrc option').each(function() {
+			if ($(this).attr('disabled') == false) {
+				$(this).attr('disabled', true);
+			
+			var select = $(this).val();
+			$('#taskListTarget').append('<option>' + select + '</option>');
+			}
+		});
+		
+		$('#taskListSrc')[0].selectedIndex = -1;	
+	}
+	
+	// 添加双击反选
+	$('#taskListTarget').dblclick(function(){
+		// 左边的也消失了
+		removeTask();
+    });
+
+	// 反选
+	function removeTask() {
+		var checkText = $("#taskListTarget").find("option:selected").text(); 
+		$("#taskListTarget").find("option:selected").remove();	
+	
+		$('#taskListSrc option').each(function() {
+			if ($(this).val() == checkText) {
+				$(this).removeAttr('disabled');
+			}
+		});  
+	}		
+
+	// 取消全部选中列
+	function removeAll() {
+		$('#taskListTarget').empty();
+			
+		$('#taskListSrc option').each(function() {
+			$(this).removeAttr('disabled');
+		});
+		
+		$('#taskListSrc')[0].selectedIndex = -1;
+	}		
+
+	// 必须输入任务名
+	function taskInput(){
+		var taskName = document.getElementById("taskName").value;
+		if (taskName == null || taskName == ""){
+			alert("请输入任务名");
+		
+			return false;
+		}
+	}
+
+	// 打开关闭高级配置
+	$(function(){
+		$("#selectAdvance").click(function(){
+			$("#advanceSetting").toggle();
+		});
+	});
+</script>

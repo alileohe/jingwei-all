@@ -1,0 +1,926 @@
+#if($messages)
+	<div style="color:red;">$messages</div>
+#end
+<strong>add Batch</strong>
+<form name="taskForm" action="$jingweiModule.setTarget('jingweiBatchUpdate.vm').addQueryData('action', 'JingweiBatchAction').addQueryData('event_submit_do_update_task_config', 1).addQueryData('configType', $type).addQueryData('host', $host).render()" method="post" onsubmit="return checkForm()">
+<!-- 保存后台传到前端的要修改的任务列表,一般属于同一个精卫group, -->
+<input type="hidden" id="batch_update_tasks" value="$!taskNames">
+<input type="hidden" id="batch_support_type" value="$type">
+<table class="jwTable">
+	<tr>
+		<th width="20%">ZK服务器</th>
+		<td>
+			$control.setTemplate("jingweiZkServer.vm")
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			<div id="task-list">
+				任务名<input type="input" id="task-input" name="taskInput"></input>	
+			</div>
+			<input type="hidden" id="post-action" value="$jingweiModule.setTarget('jingweiBatchUpdate.vm').addQueryData('action', 'JingweiBatchAction').addQueryData('event_submit_do_task_promotions', 1).render()" ></input>
+			<input type="hidden" id="tasks" name="tasks" ></input>
+	
+			<div style="clear:both;padding:10px;">
+			<table>
+				<tr>
+					<td align="right">
+						<select id="taskListSrc" size="10" class="box" name="taskListSrc">
+							#foreach($element in $allTasks)
+								<option>$element</option>
+							#end
+						</select>
+					</td>
+					<td align="center">
+						<input type="button" class="p_btn" value="全选>>" onclick="addAll()" />
+						<br/>
+						<input type="button" class="p_btn" value="添加->" onclick="addTask()" />
+						<br/>
+						<input type="button" class="p_btn" value="<-删除" onclick="removeTask()" /><br/>
+						<input type="button" class="p_btn" value="<<全消" onclick="removeAll()" />
+					</td>
+					<td align="left">
+						<select id="taskListTarget" size="10" class="box" name="taskListTarget">
+						</select>
+					</td>
+					</tr>
+			</table>
+			</div>
+		</td>
+    </tr>
+	<tr>
+		<td colspan="4">
+			<div style="margin-bottom:10px;">
+			  <select id="batch-config-list" name="configType" style="width:300px;">
+				#foreach($conponent in $supportConponents)
+                  <option>$conponent</option>
+				#end
+			  </select>
+			  <input type="hidden" id="check_task_type_url" value="$jingweiModule.setTarget('jingweiBatchUpdate.vm').addQueryData('action', 'JingweiBatchAction').addQueryData('event_submit_do_check_task', 1).addQueryData('host',$host).render()" ></input>
+			  <input type="hidden" id="batch_update_url" value="$jingweiModule.setTarget('jingweiBatchUpdate.vm').addQueryData('host',$host).render()" ></input>
+			</div>
+			
+				<!-- 过滤器配置 -->
+			<div id="filter_config_div" style="display:none;">
+			<table style='border: 1px solid #fff' onmouseover='this.style.border="1px solid #4f6b72"' onmouseout='this.style.border="1px solid #fff"'>
+				<tr>
+					<th style="width:140px;">Common Applier</th>
+					<th style='text-align:right; width:450px;'>
+					</th>
+				</tr>
+				<tr><td>开启过滤</td><td><input type="checkbox" id="common_filter_enabled" name="commonFilterEnabled"></input></td></tr>
+				<tr><td>库名表达式</td><td><input type="text" name="commonFilterSrcSchemaReg" value=""></input></td></tr>
+				<tr><td>表名表达式</td><td><input type="text" name="commonFilterSrcTableReg" value=""></input></td></tr>
+				<tr>
+					<td>Action过滤</td>
+					<td>
+						<input type="checkbox" name="commonFilterInsert" checked >INSERT</input>
+						<input type="checkbox" name="commonFilterUpdate" checked >UPDATE</input>
+						<input type="checkbox" name="commonFilterDelete" checked >DELETE</input>
+					</td>
+				</tr>
+			    <tr><td>启动字段过滤</td>
+					<td><input type="checkbox" id="common_filter_check_box" name="commonFilterCheckBox" ></td></tr>
+				<tr ><td>过滤内容</td>
+					<td>
+					<div>
+						字段过滤<br>
+						<textarea cols="60" rows="5" id="common_filter_config" name="commonFilterConfig" >$configHolder.columnFilter</textarea>
+					</div>
+					<div>
+						动态代码<br>
+						<textarea cols="60" rows="5" id="common_filter_dyna_code" name="commonFilterDynaCode" ></textarea>
+					</div>
+					</td>
+                </tr>
+            </table>
+		</div>
+			<div id="config-content">
+			</div>
+	</td>
+	</tr>
+
+		<tr>
+		<td>&nbsp;</td>
+		<td colspan="3">
+			<input type="submit" id="add-task-btn"  class="yugongBtn" value="提交" />
+			&nbsp;
+			<input class="yugongBtn" type="reset" value="重置" />
+		</td>
+	</tr>
+</table>
+</form>
+<!-- Multi meta applier模板 -->
+<input type="hidden" id="multi_meta_number" value="$!multiMetaApplierConfig.metaApplierConfigs.size()" />
+<div id="multi_meta_applier_config_div" style="display:none; ">
+	<!-- <textarea id="applier_data" name="$group.applierData.key" cols="60" rows="8">$group.applierData.value</textarea> -->
+	<table id="multi_meta_table">
+		#foreach($metaApplierConfig in $!multiMetaApplierConfig.metaApplierConfigs)
+			<tr id="multiFilterTr_$velocityCount">
+				<td colspan="4">
+					<table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'" onmouseout="this.style.border='1px solid #fff'">
+						<tr>
+							<th colspan="3">META Applier</th>
+							<th style='text-align:right'>#if($velocityCount != 1)<a href='javascript:void(0)' onclick='delMultiMetaApplierDiv($velocityCount)'>X</a>#end</th>
+						</tr>
+						<tr>
+							<td>主题</td>
+							<td><input type="text" name="multiMetaTopic" value="$!metaApplierConfig.metaTopic" /></td>
+							<td>分库键</td>
+							<td><input type="text" name="multiShardColumn" value="$!metaApplierConfig.shardColumn" /></td>
+						</tr>
+						<tr>
+							<td>库名表达式</td>
+							<td><input type="text" name="multiSrcSchemaReg" value="$!metaApplierConfig.commonFilterConfig.srcSchemaReg" /></td>
+							<td>表名表达式</td>
+							<td><input type="text" name="multiSrcTableReg" value="$!metaApplierConfig.commonFilterConfig.srcTableReg" /></td>
+						</tr>
+						<tr>
+							<td>发送超时时间</td>
+							<td><input type="text" name="multiSendTimeOut" value="$!metaApplierConfig.sendTimeOut" /></td>
+							<td>压缩类型</td>
+							<td>
+								<select name="compressionType">
+									#foreach($cType in $compressionType)
+										<option value="$cType" #if($metaApplierConfig.compressionType == $cType) selected #end>$cType</option>
+									#end
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>是否拆分事务</td>
+							<td><input type="checkbox" id="multiSplitTxEvent_$velocityCount" onclick="chgCheckBoxValue(this)" #if($metaApplierConfig.splitTxEvent=="true") checked #end />
+									<input type="hidden" id="multiSplitTxEvent_${velocityCount}_value" name="multiSplitTxEvent" value="$!metaApplierConfig.splitTxEvent" /></td>
+							<td>最大事件长度</td>
+							<td><input type="text" name="multiMaxEventSize" value="$!metaApplierConfig.maxEventSize" onkeypress="event.returnValue=isNumber()" /></td>
+						</tr>
+						<tr>
+							<td>Action过滤</td>
+							<td colspan="3">
+								<label><input type="checkbox" id="multiInsert_$velocityCount" onclick="chgCheckBoxValue(this)" #if($!metaApplierConfig.commonFilterConfig.includeInsert) checked #end />INSERT</label>
+								<input type="hidden" id="multiInsert_${velocityCount}_value" name="multiInsert" value="$!metaApplierConfig.commonFilterConfig.includeInsert" />
+								<label><input type="checkbox" id="multiUpdate_$velocityCount" onclick="chgCheckBoxValue(this)" #if($!metaApplierConfig.commonFilterConfig.includeUpdate) checked #end />UPDATE</label>
+								<input type="hidden" id="multiUpdate_${velocityCount}_value" name="multiUpdate" value="$!metaApplierConfig.commonFilterConfig.includeUpdate" />
+								<label><input type="checkbox" id="multiDelete_$velocityCount" onclick="chgCheckBoxValue(this)" #if($!metaApplierConfig.commonFilterConfig.includeDelete) checked #end />DELETE</label>
+								<input type="hidden" id="multiDelete_${velocityCount}_value" name="multiDelete" value="$!metaApplierConfig.commonFilterConfig.includeDelete" />
+							</td>
+						</tr>
+						<tr>
+							<td>启动字段过滤</td>
+							<td colspan="3">
+								<input id="multiMetaFilterRadio_$velocityCount" type="checkbox" onclick="chgMultiMetaFilter(this)" #if($!metaApplierConfig.enableColumnFilter=="true") checked #end />
+								<input type="hidden" id="multiMetaFilterRadio_${velocityCount}_value" name="multiEnableColumnFilter" value="$!metaApplierConfig.enableColumnFilter" />
+								<span id="multiMetaFilterRadio_${velocityCount}_mode_div" #if($!metaApplierConfig.enableColumnFilter=="false") style="display:none" #end>
+									[高级模式
+									<input id="multiMetaFilterRadio_${velocityCount}_mode" type="checkbox" onclick="chgMultiMetaFilterMode(this)" #if($!metaApplierConfig.commonFilterConfig.enableColumnFilterAdv) checked #end />
+									]
+									<input type="hidden" id="multiMetaFilterRadio_${velocityCount}_mode_value" name="multiColumnFilterAdvEnabled" value="$metaApplierConfig.commonFilterConfig.enableColumnFilterAdv"" />
+								</span>
+							</td>
+						</tr>
+						<tr id="multiMetaFilterRadio_${velocityCount}_mode_sim" #if($!metaApplierConfig.enableColumnFilter == "false" || $!metaApplierConfig.commonFilterConfig.enableColumnFilterAdv) style="display:none" #end>
+							<td colspan="3">
+								<input id="columnFilterUseInclude_$velocityCount" type="checkbox" #if($!metaApplierConfig.enableColumnFilter=="true") checked #end />
+								<input type="hidden" id="columnFilterUseInclude_${velocityCount}_value" name="columnFilterUseInclude" value="$!metaApplierConfig.commonFilterConfig.columnFilterUseInclude" /> 使用包含
+								<textarea name="columnFilterCondition" cols="60" rows="12">$!metaApplierConfig.commonFilterConfig.columnFilterCondition</textarea>
+							</td>
+							<td colspan="2">
+								<div>
+									<font color="red"> 例子：<br>
+										schemaReg.logicTable.cloumn1 <br>
+										schemaReg.logicTable.cloumn2
+									</font>
+								</div>
+							</td>
+						</tr>
+						<tr id="multiMetaFilterRadio_${velocityCount}_mode_adv" #if($!metaApplierConfig.enableColumnFilter == "false" || !$metaApplierConfig.commonFilterConfig.enableColumnFilterAdv) style="display:none" #end>
+							<td colspan="4">
+								<textarea name="multiColumnFilterAdv" cols="80" rows="12">$!metaApplierConfig.commonFilterConfig.columnFilterDynaCode</textarea>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		#end
+		<tr>
+			<td colspan="3">&nbsp;</td>
+			<td align="right"><a href="javascript:void(0)" onclick="addMultiMeta()">添加META_APPLIER</a></td>
+		</tr>
+	</table>
+</div>
+<div id="compTypeOptions" style="display:none">
+	<select name="CompressionType">
+		#foreach($cType in $compressionType)
+			<option value="$cType">$cType</option>
+		#end
+	</select>
+</div>
+<!-- Multi meta applier 附属的js -->
+<script language="javascript">
+function chgMultiMetaFilterMode(e) {
+	chgCheckBoxValue(e);
+	document.getElementById(e.id + "_sim").style.display = e.checked ? "none"
+			: "";
+	document.getElementById(e.id + "_adv").style.display = e.checked ? ""
+			: "none";
+}
+
+function chgMultiMetaFilter(e) {
+	var v = document.getElementById(e.id + "_value");
+	v.value = e.checked;
+	document.getElementById(e.id + "_mode_sim").style.display = e.checked ? ""
+			: "none";
+	document.getElementById(e.id + "_mode_div").style.display = e.checked ? ""
+			: "none";
+	document.getElementById(e.id + "_mode").checked = false;
+	document.getElementById(e.id + "_mode_value").value = "false";
+	document.getElementById(e.id + "_mode_adv").style.display = "none";
+}
+
+function chgCheckBoxValue(obj) {
+	var v = document.getElementById(obj.id + "_value");
+	v.value = obj.checked;
+}
+
+function delMultiMetaApplierDiv(row) {
+	var tab = document.getElementById("multi_meta_table");
+	var tr = document.getElementById("multiFilterTr_" + row);
+	tab.deleteRow(tr.rowIndex);
+}
+
+function addMultiMeta() {
+	var tab = document.getElementById("multi_meta_table");
+	var tr = tab.insertRow(tab.rows.length - 1);
+	var num = document.getElementById("multi_meta_number").value;
+	var row = num == "" ? 0 : parseInt(num);
+
+	row++;
+	document.getElementById("multi_meta_number").value = row;
+	tr.id = "multiFilterTr_" + row;
+
+	var td = tr.insertCell(0);
+	td.colSpan = 4;
+
+	var ht = "";
+	ht += "<table style='border:1px solid #fff' onmouseover='this.style.border=\"1px solid #4f6b72\"' onmouseout='this.style.border=\"1px solid #fff\"'>";
+	ht += "<tr>";
+	ht += "<th colspan='3'>META Applier</th>";
+	ht += "<th style='text-align:right'><a href='javascript:void(0)' onclick='delMultiMetaApplierDiv("
+			+ row + ")'>X</a></th>";
+	ht += "</tr>";
+	ht += "<tr>";
+	ht += "<td>主题</td><td><input type='text' name='multiMetaTopic' /></td>";
+	ht += "<td>分库键</td><td><input type='text' name='multiShardColumn' /></td>";
+	ht += "</tr>";
+	ht += "<tr>";
+	ht += "<td>库名表达式</td>";
+	ht += "<td><input type='text' name='multiSrcSchemaReg' /></td>";
+	ht += "<td>表名表达式</td>";
+	ht += "<td><input type='text' name='multiSrcTableReg' /></td>";
+	ht += "</tr>";
+	ht += "<tr>";
+	ht += "<td>发送超时时间</td>";
+	ht += "<td><input type='text' name='multiSendTimeOut' value='3000' /></td>";
+	ht += "<td>压缩类型</td>";
+	ht += "<td>";
+	ht += document.getElementById("compTypeOptions").innerHTML;
+	ht += "</td>";
+	ht += "</tr>";
+	
+	ht += "<tr>";
+	ht += "<td>是否拆分事务</td><td><input type='checkbox' id='multiSplitTxEvent_"
+			+ row
+			+ "' onclick='chgCheckBoxValue(this)' /><input type='hidden' id='multiSplitTxEvent_"
+			+ row + "_value' name='multiSplitTxEvent' value='false' /></td>";
+	ht += "<td>最大事件长度</td><td><input type='text' name='multiMaxEventSize' value='4096' /></td>";
+	ht += "</tr>";
+	ht += "<tr>";
+	ht += "<td>Action过滤</td>";
+	ht += "<td colspan='3'>";
+	ht += "<label><input type='checkbox' id='multiInsert_" + row
+			+ "' onclick='chgCheckBoxValue(this)' checked />INSERT</label>";
+	ht += "<input type='hidden' id='multiInsert_" + row
+			+ "_value' name='multiInsert' value='true' />";
+	ht += "<label><input type='checkbox' id='multiUpdate_" + row
+			+ "' onclick='chgCheckBoxValue(this)' checked />UPDATE</label>";
+	ht += "<input type='hidden' id='multiUpdate_" + row
+			+ "_value' name='multiUpdate' value='true' />";
+	ht += "<label><input type='checkbox' id='multiDelete_" + row
+			+ "' onclick='chgCheckBoxValue(this)' checked />DELETE</label>";
+	ht += "<input type='hidden' id='multiDelete_" + row
+			+ "_value' name='multiDelete' value='true' />";
+	ht += "</td>";
+	ht += "</tr>";
+	ht += "<tr>";
+	ht += "<td>启动字段过滤</td>";
+	ht += "<td colspan='3'><input id='multiMetaFilterRadio_"
+			+ row
+			+ "' type='checkbox' onclick='chgMultiMetaFilter(this)' /><input type='hidden' id='multiMetaFilterRadio_"
+			+ row + "_value' name='multiEnableColumnFilter' value='false' />";
+	ht += "<span id='multiMetaFilterRadio_" + row
+			+ "_mode_div' style='display:none'>高级模式";
+	ht += "<input id='multiMetaFilterRadio_"
+			+ row
+			+ "_mode' type='checkbox' onclick='chgMultiMetaFilterMode(this)' />";
+	ht += "<input type='hidden' id='multiMetaFilterRadio_"
+			+ row
+			+ "_mode_value' name='multiColumnFilterAdvEnabled' value='false' /></span>";
+	ht += "</td>";
+	ht += "</tr>";
+
+	ht += "<tr id='multiMetaFilterRadio_" + row	+ "_mode_sim' style='display:none' />";
+	ht += "<td colspan='3'>";
+	ht += "<input id='columnFilterUseInclude_" + row +  "' onclick='chgCheckBoxValue(this)' type='checkbox' />" + "使用包含<br>";
+	ht += "<input id='columnFilterUseInclude_" + row + "_value' type='hidden' name='columnFilterUseInclude' />";
+	ht += "<textarea name='columnFilterCondition' cols='60' rows='12'></textarea>";
+	ht += "</td>";
+	ht += "</tr>";
+	
+	ht += "<tr id='multiMetaFilterRadio_" + row 	+ "_mode_adv' style='display:none'>";
+	ht += "<td colspan='4'>";
+	ht += "<textarea name='multiColumnFilterAdv' cols='80' rows='12'></textarea>";
+	ht += "</td>";
+	ht += "</tr>";
+	ht += "</table>";
+	td.innerHTML = ht;
+}
+</script>
+
+
+<!-- mysql binlog extractor模板 -->
+<div id="mysql_extractor_config_div" style="display:none; ">
+    <h2>只支持自动切换模式</h2>
+	<table>
+		<tr>
+			<th>配置项</th>
+			<th style="width: 470px;">内容 </th>
+			<th style="width: 50px;">批量影响</th>
+        </tr>
+		<tr>
+			<td>用户名</td>
+			<td><input type="text" name="mysqlExtractorUser" /></td>
+			<td><input type="checkbox" name="mysqlExtractorUserCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>密码</td>
+			<td><input type="text" name="mysqlExtractorPassword" /></td>
+			<td><input type="checkbox" name="mysqlExtractorPasswordCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>切换规则</td>
+            <td>
+				<select name="mysqlExtractorSwitchPolicy" style="width:180px">
+					#foreach($switcher in $switchPolicyType)
+						<option>$switcher</option>
+					#end
+				</select>
+			</td>
+			<td><input type="checkbox" name="mysqlExtractorSwitchPolicyCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>字符集</td>
+			<td><input type="text" name="mysqlExtractorCharset" /></td>
+			<td><input type="checkbox" name="mysqlExtractorCharsetCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>库名表达式</td>
+			<td><input type="text" name="mysqlExtractorDbRegex" /></td>
+			<td><input type="checkbox" name="mysqlExtractorDbRegexCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>表名表达式</td>
+			<td><input type="text" name="mysqlExtractorTableRegex" /></td>
+			<td><input type="checkbox" name="mysqlExtractorTableRegexCheckBox" /></td>
+		</tr>
+		<!-- 优先级低
+		<tr>
+			<td>高级模式</td>
+			<td><input type="checkbox" name="mysqlExtractorAdvance" onclick="mysql_extractor_advance_check(this)" /></td>
+		</tr>
+		-->
+		<tr >
+			<td>props内容</td>
+			<td><textarea cols="60" rows="5" name="mysqlExtractorProps"></textarea></td>
+			<td><input type="checkbox" name="mysqlExtractorPropsCheckBox" /></td>
+        </tr>
+		
+	</table>
+</div>
+<script language="javascript">
+function mysql_extractor_advance_check(obj) {
+	var props_tr = $(obj).parent().parent().next();
+	if ($(obj).attr("checked")) {
+		$(props_tr).show();
+    } else {
+		$(props_tr).hide();
+	}
+}
+</script>
+<!-- common config模板 -->
+<div id="common-config-div" style="float:left; display:none">
+	<table>
+		<tr>
+			<th>配置项</th>
+			<th style="width: 450px;">内容 </th>
+			<th style="width: 50px;">批量影响</th>
+		</tr>
+		<tr>
+			<td>启动多线程</td>
+			<td><input type="checkbox" name="multiThread" /></td>
+			<td><input type="checkbox" name="multiThreadCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>队列容量</td>
+			<td><input type="text" name="queueCapacity" /></td>
+			<td><input type="checkbox" name="queueCapacityCheckBox"  onkeyup="isNumber(this)"  /></td>
+		</tr>
+		<tr>
+			<td>最大线程数</td>
+			<td><input type="text" name="maxThreadCount" /></td>
+			<td><input type="checkbox" name="maxThreadCountCheckBox"  onkeyup="isNumber(this)"  /></td>
+		</tr>	
+		<tr>
+			<td>分组映射规则
+				<br>
+			<font color="gray">
+   		    <textarea disabled="true" cols="30" rows="8" >$configHolder.groupingSetting</textarea>
+            </font>
+			</td>
+			<td><textarea cols="30" rows="8" name="groupingSettings"  ></textarea></td>
+			<input type="hidden" id="groupingSettingsHidden" value="$configHolder.groupingSetting" />
+			<td><input type="checkbox" name="groupingSettingsCheckBox" /></td>
+		</tr>			    	        
+		<tr>
+			<td>JAVA OPT</td>
+			<td><textarea cols="60" rows="5" name="javaOpt"></textarea>
+			<br/>
+		    <font color="red">默认：-server -Xms256m -Xmx256m -XX:PermSize=64m -XX:MaxPermSize=64m -Xss1m -XX:+UseParallelGC -XX:ParallelGCThreads=4</font></td>
+			
+			<td><input type="checkbox" name="javaOptCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>是否使用上次位点</td>
+			<td><input type="checkbox" name="useLastPosition"  onkeyup="isNumber(this)"  /></td>
+			<td><input type="checkbox" name="useLastPositionCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>统计周期	</td>
+			<td><input type="text" name="statsPeriod"  onkeyup="isNumber(this)" /></td>
+			<td><input type="checkbox" name="statsPeriodCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>事务统计周期</td>
+			<td><input type="text" name="summaryPeriod"  onkeyup="isNumber(this)" /></td>
+			<td><input type="checkbox" name="summaryPeriodCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>位点提交周期</td>
+			<td><input type="text" name="comitLogPeriod" onkeyup="isNumber(this)"  /></td>
+			<td><input type="checkbox" name="comitLogPeriodChheckBox" /></td>
+		</tr>
+		<tr>
+			<td>位点提交数量	</td>
+			<td><input type="text" name="comitLogCount" onkeyup="isNumber(this)"  /></td>
+			<td><input type="checkbox" name="comitLogCountCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>描述</td>
+			<td><textarea cols="60" rows="5" name="taskDesc"></textarea></td>
+			<td><input type="checkbox" name="taskDescCheckBox" /></td>
+		</tr>
+    </table>
+</div>
+<!-- database applier extractor模板 -->
+<div id="database-applier-config-div" style="float:left; display:none">
+	<table >
+		<tr>
+			<th>配置项</th>
+			<th style="width: 400px;">内容 </th>
+			<th style="width: 50px;">批量影响</th>
+		</tr>
+		<tr> 
+			<td>MATRIX名</td>
+			<td><input type="text" name="matrix" /></td>
+			<td><input type="checkbox" name="matrixCheckBox" /></td>
+		</tr>		
+		<tr>
+			<td>规则名</td>
+			<td><input type="text" name="tddlRule" /></td>
+			<td><input type="checkbox" name="tddlRuleCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>类型</td>
+            <td><select type="text" name="applierDbType" >
+					#foreach($type in $databaseApplierDbTypes)
+						<option>$type</option>
+					#end
+			</select></td>
+			<td><input type="checkbox" name="applierDbTypeCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>是否覆盖</td>
+            <td><input type="checkbox" name="useReplace" /></td>
+			<td><input type="checkbox" name="useReplaceCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>是否跳过错误</td>
+            <td><input type="checkbox" name="failContinue" /></td>
+			<td><input type="checkbox" name="failContinueCheckBox" /></td>
+		</tr>
+		<tr>
+			<td>Table Map</td>
+			<td><textarea cols="60" rows="10" name="tableMaps"  style="color:gray;" onfocus='inputOnfocus(this, "")' onblur="inputOnblur(this, '')" >$configHolder.tableMap</textarea></td>
+			<input type="hidden" id="tableMapHidden" value="$configHolder.tableMap" />
+			<td><input type="checkbox" name="tableMapsCheckBox" /></td>
+		</tr>
+    </table>
+</div>
+
+<!-- 根据下拉菜单确定配置信息的种类 -->
+<script language="javascript">
+$("#batch-config-list").click(function() {
+	
+	// 必须先选择任务，才能执行操作
+	var data = "";
+	$('#taskListTarget option').each(function() {
+		//alert();
+		data += $(this).val();
+		data += ",";
+	});
+						
+	data = data.substr(0, data.length - 1);				
+		if (data == "") {
+		alert("请先选择任务！");
+		return;
+	}
+	
+	// 下拉菜单内容
+	var selectedItem = $("#batch-config-list").find("option:selected").text();
+	
+	// url
+	var url = $("#check_task_type_url").val();
+	var url = url.replace(".htm", ".do");
+	/*
+	//-判断Applier和Extractor的类型---------------------------------------------------------------------------
+	jQuery.getJSON(url, {tasks : data, type : selectedItem}, function(result) {
+			var err =  "";
+			for (i = 0; i< result.candidates.length; i++) {
+				ch = new Array;
+				ch = result.candidates[i].split(":");
+				err += ch[0] + "类型是" + ch[1]
+			}
+			
+			if (err != "") {
+				alert(err);
+				location.href = $("#batch_update_url").val();
+				return;
+			}
+		});
+	//----------------------------------------------------------------------------
+*/
+
+	// 清空内容
+	$("#config-content").html("");
+	$("#filter_config_div").hide();
+	
+	var content_html;
+	if (selectedItem == "COMMON_CONFIG") {
+		content_html = $("#common-config-div").html();
+	} else if (selectedItem == "DATABASE_APPLIER") {
+		content_html = $("#database-applier-config-div").html();
+	} else if (selectedItem == "COMMON_FILTER_APPLIER") {
+		$("#filter_config_div").show();
+	} else if (selectedItem == "MULTI_META_APPLIER") {
+		content_html = $("#multi_meta_applier_config_div").html();
+	} else if (selectedItem == "MYSQL_EXTRACTOR") {
+		content_html = $("#mysql_extractor_config_div").html();
+	}
+	
+	$("#config-content").append(content_html);
+});	
+
+</script>
+<!-- 向服务端异步请求任务名列表  -->
+<script language="javascript">
+$("#task-input").bind("paste", function(){
+	var element = this;
+    setTimeout(function () {
+    var text = $(element).val();
+            request_tasks()
+  }, 100);
+} );
+
+$("#task-input").bind("click", function(){
+	var element = this;
+    setTimeout(function () {
+    var text = $(element).val();
+            request_tasks()
+  }, 100);
+} );
+$("#task-input").bind("change", function(){
+	var element = this;
+    setTimeout(function () {
+    var text = $(element).val();
+		if(text != "") {
+		    request_tasks()
+		}
+  }, 100);
+} );
+
+    $("#task-input").keyup(function() {
+         request_tasks();
+    });
+	
+
+	function request_tasks() {
+	    var action_url = $("#post-action").val();
+		var host = $("#host").val();
+	//	alert(host);
+		var str2 = action_url.replace(".htm", ".do");
+		str2 += "&host=" + host;
+         
+        txt = $("#task-input").val();
+		
+		//alert(str2);
+		
+		jQuery.getJSON(str2, {word : txt}, function(result) {
+		
+			$('#taskListSrc').empty();
+			
+			for (i = 0; i< result.candidates.length; i++) {
+				$("<option>" + result.candidates[i] + "</option>").appendTo('#taskListSrc');
+			}
+						
+			var prompt = "请为  " + groupName + " 选择任务 ";
+			$("#pop_group_header").html( prompt );
+						
+			$('#target_group').val(groupName);
+		});
+	}
+</script>
+<!-- 任务选择列表  -->
+<script language="javascript">
+	$(document).ready(function(){
+	    // 把任务任务填充套targetList
+		//alert($("#batch_update_tasks").val());
+		var tasks = $("#batch_update_tasks").val();
+		tasks = tasks.split(",");
+		for (var i = 0; i < tasks.length; i++) {
+			
+			//alert(tasks[i].length);
+			if (tasks[i].length == 0) {
+				continue;
+			}
+			//alert(tasks[i]);
+		    $('#taskListTarget').append('<option>' + tasks[i] + '</option>');
+		}
+		
+		// 选择操作类型
+		var type = $("#batch_support_type").val();
+		if (type == "MULTI_META_APPLIER") {
+			$("#config-content").append($("#multi_meta_applier_config_div").html());
+			// 不可编辑
+			//alert($("#batch-config-list option[text='MULTI_META_APPLIER']").find("option:selected").text())
+			$("#batch-config-list").get(0).value = "MULTI_META_APPLIER";
+			//$("#batch-config-list").disable();
+		}
+		
+		// 公共配置
+		if (type == "COMMON_CONFIG") {
+		    $("#config-content").append($("#common-config-div").html());
+		    $("#batch-config-list").get(0).value = "COMMON_CONFIG";
+		}
+		
+		// mysql binlog extractor
+		if (type == "MYSQL_EXTRACTOR") {
+		    $("#config-content").append($("#mysql_extractor_config_div").html());
+		    $("#batch-config-list").get(0).value = "MYSQL_EXTRACTOR";
+		}
+		
+		$("#batch-config-list").attr("disabled","disabled");
+	});
+	// 添加选中的项到右边
+	function addTask(){
+		if ($('#taskListSrc')[0].selectedIndex < 0) {
+			return;
+		}
+		add();
+	}
+						
+	// 添加双击选中的项到右边
+	$('#taskListSrc').dblclick(function(){
+		if ($("option:selected", this).text() == "") {
+			return;
+		}
+		// 左边的也消失了
+		//$("option:selected", this).appendTo('#taskListTarget');
+			add();
+		});
+						
+	// 添加选中的项到右边
+	function add() {
+		var select = $("#taskListSrc option:selected").val();
+		    $('#taskListSrc option:selected').attr("disabled", true);
+		    $('#taskListTarget').append('<option>' + select + '</option>');
+			$('#taskListSrc')[0].selectedIndex = -1;
+		}
+						
+		// 全选
+		function addAll() {
+			$('#taskListSrc option').each(function() {
+				if ($(this).attr('disabled') == false) {
+					$(this).attr('disabled', true);
+						
+					var select = $(this).val();
+					$('#taskListTarget').append('<option>' + select + '</option>');
+				}
+		});
+						
+		$('#taskListSrc')[0].selectedIndex = -1;
+		}
+						
+		// 添加双击反选
+		$('#taskListTarget').dblclick(function(){
+			// 左边的也消失了
+			removeTask();
+		});
+						
+		// 反选
+		function removeTask() {
+			var checkText = $("#taskListTarget").find("option:selected").text();
+			$("#taskListTarget").find("option:selected").remove();
+						
+			$('#taskListSrc option').each(function() {
+				if ($(this).val() == checkText) {
+					$(this).removeAttr('disabled');
+				}
+			});
+		}
+						
+		// 取消全部选中列
+		function removeAll() {
+			$('#taskListTarget').empty();
+						
+			$('#taskListSrc option').each(function() {
+				$(this).removeAttr('disabled');
+			});
+						
+			$('#taskListSrc')[0].selectedIndex = -1;
+		}
+</script>
+<script language="javascript">
+function checkForm() {
+	//alert();
+    //提交到后台前的参数校验
+
+	var tasks = "";
+	$('#taskListTarget option').each(function() {
+		tasks += $(this).val() + ",";
+		//alert(tasks);
+	});
+	
+	$("#tasks").val(tasks);
+	
+	alert(tasks);
+	
+	if (tasks == "" || jQuery.trim(tasks).length == 0 ) {
+	    alert("请选择要修改的任务！");
+	    return false;
+	}
+	
+	
+	var selectedItem = $("#batch-config-list").find("option:selected").text();
+	//alert(selectedItem);
+	
+	if (selectedItem == "MULTI_META_APPLIER") {
+		var valid = validateMultiMetaApplier();
+		//alert(valid);
+		return valid;
+	} else if (selectedItem == "COMMON_FILTER_APPLIER") {
+		return validateCommonFilter();
+	} else if (selectedItem == "MYSQL_EXTRACTOR") {
+		return true;
+	}
+}
+
+function validateMultiMetaApplier() {
+	//alert('a');
+	var result = checkMutilSameNameControl( 'multiMetaTopic', "Topic 不能为空！") &&
+			checkMutilSameNameControl('multiSendTimeOut', 'SendTimeOut 不能为空！') && 
+			checkMutilSameNameControl('multiMaxEventSize', '最大事件长度不能为空！') &&
+			checkMutilSameNameControl('multiSrcSchemaReg', '库名表达式不能为空！') &&
+			checkMutilSameNameControl('multiSrcTableReg', '表名表达式不能为空！');
+		
+	var multiEnableColumnFilter = $("input[name='multiEnableColumnFilter']");
+	var multiColumnFilterAdvEnabled = $("input[name='multiColumnFilterAdvEnabled']");
+	var columnFilterCondition = $("textarea[name='columnFilterCondition']");
+	var multiColumnFilterAdv = $("textarea[name='multiColumnFilterAdv']");
+	
+	// 有效control的数量
+	var size = $(multiEnableColumnFilter).length - 1;
+	//alert(size);
+	for (var i = 0; i < size; i++) {
+		var value = $($(columnFilterCondition).get(i)).val()
+		//alert(value);
+		if (value == "" || jQuery.trim(value).length == 0) {
+			if ($($(multiEnableColumnFilter).get(i)).val() == "true" && $($(multiColumnFilterAdvEnabled).get(i)).val() == "false") {
+				alert("请输入列过滤条件！");
+				return false
+			}
+		 }
+		 
+		
+		 var dynaCode = $($(multiColumnFilterAdv).get(i)).val();
+		 if (dynaCode == "" || jQuery.trim(dynaCode).length == 0) {
+		 	
+			if ($($(multiEnableColumnFilter).get(i)).val() == "true" && $($(multiColumnFilterAdvEnabled).get(i)).val() == "true") {
+				alert("请输入动态代码！");
+				return false
+			}
+		 }
+	}
+	
+	//return true;		
+			
+	return result;
+}
+
+// 如果是multimeta applier, 如果使用字段过滤，则必须填写内容
+function validateMetaApplierColumnCondition() {
+	multiMetaFilterRadio_$velocityCount
+}
+
+function validateCommonFilter() {
+	
+	if($("#common_filter_enabled").attr("checked") == true) {
+		if (true) {
+			var value = $($("input[name=commonFilterSrcSchemaReg]")).val();
+			if (jQuery.trim(value).length == 0) {
+				alert("请输入库名表达式！");
+				return false;
+			}
+			value = $($("input[name=commonFilterSrcTableReg]")).val();
+			if (jQuery.trim(value).length == 0) {
+				alert("请输入表名表达式！");
+				return false;
+			}		
+			
+			if($("#common_filter_check_box").attr("checked") == true) {
+				var config = $("textarea[name=commonFilterConfig]").val();
+				var dynaCode =$("textarea[name=commonFilterDynaCode]").val();
+				alert(config);
+				
+				if (jQuery.trim(config).length == 0 && jQuery.trim(dynaCode).length == 0) {
+					alert("配置项和源码不可以都为空！");
+					return false;
+				}
+			}
+			
+		}
+
+			
+		return true;
+	} 
+}
+
+
+
+/*
+	校验前端值不能为空
+*/
+function checkMutilSameNameControl(inputCtl, pmpt) {
+
+    var ctl = $("input[name=" + inputCtl + "]");
+	
+	// 有效control的数量
+	var size = $(ctl).length - 1;
+	//alert(size);
+	for (var i = 0; i < size; i++) {
+		var value = $($(ctl).get(i)).val();
+		// alert(value);
+		if (value == "" || jQuery.trim(value).length == 0) {
+		 alert(pmpt);
+			return false
+		 }
+	}
+	
+	return true;
+}
+	function inputOnfocus(elem, defauleValue) {
+		//alert(defauleValue);
+		//alert(elem.value);
+		//defauleValue = $("#groupingSettingsHidden").val();
+		//if(elem.value == defauleValue){
+		//	elem.value = "";
+			elem.style.color = "black";
+		//}
+	}
+	function inputOnblur(elem, defauleValue){
+		defauleValue = $("#groupingSettingsHidden").val();
+		//alert(defauleValue);
+		if(elem.value == defauleValue || elem.value == ""){
+			elem.value = defauleValue;
+			elem.style.color = "gray";
+		}
+	}
+</script>

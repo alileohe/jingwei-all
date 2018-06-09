@@ -1,0 +1,132 @@
+<div id="serverView" >
+	<p>
+	<strong>Server搜索</strong>
+	</p>
+	<input type="hidden" name="criteria" value="$!criteria_data" />
+	<form id="searchForm" name="searchForm" action="$jingweiModule.setTarget('jingwei_tars.vm').render()" method="post">
+		<table class="jwTable">
+			<tr>
+				<th width="20%">ZK服务器</th>
+				<td>
+					$control.setTemplate("jingweiZkServer.vm")
+				</td>
+			</tr>
+			<tr>
+				<th>Server ID</th>
+				<td>
+					<input type="text" id="serverNameCriteria" name="serverNameCriteria" value="$!serverNameCriteria"/>
+				</td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">&nbsp;</td>
+				<td>
+					<span style="margin-right:20px;">
+						<input type="button" class="yugongBtn" value="清空" onclick="clearSearchForm()" />
+					</span>
+					<input type="submit" class="yugongBtn" value="搜索" onclick='search_server("$jingweiModule.setTarget('jingweiTars.vm').render()");' />
+				</td>
+			</tr>
+		</table>
+	</form>
+	<p>
+	<strong>Server列表</strong>
+	</p>
+	<table class="jwTable">
+		<tr align="center">
+			<th width="3%">ID</th>
+			<th width="25%">servers</th>
+			<th width="10%">运行状态</th>
+			<th >tars</th>
+			<th >back tars</th>
+		</tr>
+		#foreach($s in $servers)
+			<tr>
+			  <td>$velocityCount</td>
+			  <td>$s.serverName</td>
+			  <td>$s.status</td>
+
+			  <td>
+				#foreach($tar in $s.tars)
+					  <!-- http://10.13.43.86/jingwei/api/JingweiGateWay.do?act=deleteServerTar&tarName=balbabala&hostName -->
+					 <div> $tar
+						&nbsp;<a href="#" onclick= 'deleteTar("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiTars.vm').addQueryData('host',$host).addQueryData('action','JingweiTarsAction').addQueryData('event_submit_do_delete_server_tar',1).addQueryData('serverName',$s.serverName).addQueryData('tarName',$tar).addQueryData('type','tar').render()")' >删除
+					  </a></div>
+				#end
+			  </td>
+			  <td>
+				#foreach($bakTar in $s.bakTars)
+					<div>
+					  <!-- http://10.13.43.86/jingwei/api/JingweiGateWay.do?act=deleteServerTar&tarName=balbabala&hostName -->
+					  $bakTar
+					  &nbsp;<a href="#" onclick= 'deleteTar("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiTars.vm').addQueryData('host',$host).addQueryData('action','JingweiTarsAction').addQueryData('event_submit_do_delete_server_tar',1).addQueryData('serverName',$s.serverName).addQueryData('tarName',$bakTar).addQueryData('type','bakTar').render()")' >删除
+					  </a>
+					  <!-- http://10.13.43.86/jingwei/api/JingweiGateWay.do?act=revertTar&bakFileName=balbabala&hostName -->
+					  <span>&nbsp;<a href="#" onclick= 'revertTar("$pageCount", "$currentPage", "$pageSizeInt", "$jingweiModule.setTarget('jingweiTars.vm').addQueryData('host',$host).render()", "$bakTar", "$s.serverName")' >还原
+					  </a>
+					  </span>
+                    </div>
+				#end
+			  </td>
+			</tr>
+		#end
+	</table>
+</div>
+			
+						
+#set($uri="jingwei_tars.htm?a=1")
+#pager($uri $pageCount $currentPage "searchForm" $pageSizeInt)
+#pagerCss()
+
+<script language="javascript">
+function revertTar(pageCount, currentPage, pageSizeInt, url, bakTar, hostName) {
+    
+    var path = getApiRootPath();
+	path += "&act=revertTar";
+	path += "&bakFileName=" + bakTar;
+	path += "&hostName=" + hostName;
+	
+	
+	//alert(path);
+ 	jQuery.ajax({
+    url: path,
+       type: "POST",
+       dataType:'json',
+       success:function(json) {
+         var isSuccess = json.isSuccess;
+		 if (isSuccess == true) {
+		     alert("成功");
+			 
+			 var con = getCondition();
+	         con += "&pageCount=" + pageCount;
+	         con += "&currentPage=" + currentPage;
+	         con += "&pageSizeInt=" + pageSizeInt;
+			 
+			 //alert(url + con);
+			 location.href = url + con;
+		 } else {
+		     alert(json.cause);
+		 }
+		 
+       },
+       error:function(er){
+         alert('失败');
+       }
+     });	 
+}
+function deleteTar(pageCount, currentPage, pageSizeInt, url) {
+	var con = getCondition();
+	con += "&pageCount=" + pageCount;
+	con += "&currentPage=" + currentPage;
+	con += "&pageSizeInt=" + pageSizeInt;
+						
+	//alert(url + con);
+	location.href = url + con;
+}
+
+// 获取查询条件和分页条件
+function getCondition() {
+	var con = "&serverNameCriteria=" + $('#serverNameCriteria').val();
+	return con;
+}
+</script>

@@ -1,0 +1,143 @@
+<div>
+	<form id="deployInfoForm" action="$jingweiModule.setTarget('jingweiDeployTask.vm').render()" method="post" onsubmit="return pickupData();">
+		<input type="hidden" name="action" value="JingweiServerAction"/>
+		<input type="hidden" name="event_submit_do_deploy_task" value="1"/>
+		<input type="hidden" name="targets" value="" id="targets">
+		<input type="hidden" name="serverName" value="$serverName" id="serverName">
+		<div align="left">
+			<br/>
+			<div><strong>主机 ：</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$serverName</div>
+			</br>
+			<div style="margin-left:20px;">
+				<div>已经部署的任务列表：</div>
+				</br>
+				#foreach($element in $serverTasks)
+					<div style="margin-left:20px; margin-bottom:5px;">$element</div>
+				#end
+			</div>
+		</div>
+		<br/>
+		<br/>
+		<table>
+			<tr>
+				<strong>选择任务 ：</strong>
+			</tr>
+			<tr>
+				<td align="right">
+					<select id="taskListSrc" size="10" class="box" name="taskListSrc">
+						#foreach($element in $tasks)
+							<option>$element</option>
+						#end
+					</select>
+				</td>
+				<td align="center">
+					<input type="button" class="yugongBtn" value="添加->
+					" onclick="addTask()">
+					<br>
+					<input type="button" class="yugongBtn" value="<-删除" onclick="removeTask()">
+					</td>
+					<td align="left">
+					<select id="taskListTarget" size="10" class="box" name="taskListTarget">
+					</select>
+					</td>
+					</tr>
+					</table>
+					<table>
+					<tr>
+					<td align="center">
+					<input type="submit" value="注册" class="yugongBtn"/>
+					&nbsp;
+					<input type="reset" value="重置" onclick="clearFm()" class="yugongBtn"/>
+					</td>
+					</tr>
+					</table>
+					</form>
+					</div>
+					
+					<div>
+					#if($messages)
+					#foreach($msg in $messages)
+					<div style="color:red;">$msg</div>
+					#end
+					#end
+					</div>
+					
+					<script language="javascript">
+					// jingweiRegServer.vm提交表单
+					// begin--
+					function addTask(){
+					var srcTasks = document.getElementById("taskListSrc");
+					
+					if(srcTasks.selectedIndex < 0){
+					return;
+					}
+					
+					var targetTasks = document.getElementById("taskListTarget");
+					
+					targetTasks.options[targetTasks.length]=new Option(srcTasks.options[srcTasks.selectedIndex].text
+					,srcTasks.options[srcTasks.selectedIndex].value);
+					
+					targetTasks.options[targetTasks.length-1].title=srcTasks.options[srcTasks.selectedIndex].text;
+					
+					srcTasks.options[srcTasks.selectedIndex].disabled=true;
+					srcTasks.selectedIndex = -1;
+					}
+					function removeTask(){
+					var srcTasks = document.getElementById("taskListSrc");
+					var targetTasks = document.getElementById("taskListTarget");
+					if(targetTasks.selectedIndex<0){
+					return;
+					}
+					var value = targetTasks.options[targetTasks.selectedIndex].value;
+					for(var i=0;i<srcTasks.length;i++){
+					if(srcTasks.options[i].value==value){
+					srcTasks.options[i].disabled = false;
+					break;
+					}
+					}
+					targetTasks.remove(targetTasks.selectedIndex);
+					}
+					
+					function pickupData(){
+					var data = "";
+					var targetTasks =  document.getElementById("taskListTarget");
+					
+					if (targetTasks.length == 0) {
+					alert("请选择task");
+					taskListSrc.focus();
+					return false;
+					}
+					
+					if(!regConfirm()){
+					return false;
+					}
+					
+					for(var i=0;i<targetTasks.length;i++){
+					data+=targetTasks.options[i].value;
+					data+=";";
+					}
+					
+					document.getElementById("deployInfoForm").targets.value= data;
+					
+					return true;
+					}
+					
+					function clearFm(){
+					document.getElementById("deployInfoForm").targets.value ="";
+					var srcTasks = document.getElementById("taskListSrc");
+					var targetTasks = document.getElementById("taskListTarget");
+					for(var j = targetTasks.length; j>0; j--){
+					targetTasks.remove(0);
+					}
+					for(var i=0;i<srcTasks.length;i++){
+					srcTasks.options[i].disabled=false;
+					}
+					}
+					
+					function regConfirm(){
+					return confirm('确定要注册此Task到Server吗？');
+					}
+					
+					// jingweiRegServer.vm提交表单
+					// end--
+					</script>

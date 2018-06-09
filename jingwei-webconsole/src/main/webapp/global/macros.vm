@@ -1,0 +1,358 @@
+#*这里添加共用宏
+**#
+#macro(showStyle)
+	table{
+	border: 1px solid #666;
+	}
+	tr td{
+	font-family: "lucida grande", verdana, sans-serif;
+	font-size: 12pt;
+	padding: 3px 8px;
+	background: #fff;
+	}
+	thead td{
+	color: #fff;
+	font-size:15pt;
+	font-weight: bold;
+	background-color: #3d80df;
+	border-bottom: 1px solid #999;
+	}
+	thead a {
+	color:#FFFFFF;
+	}
+	tbody td{
+	border-left: 1px solid #D9D9D9;
+	}
+	tbody tr.even td{
+	background: #eee;
+	}
+	tbody tr.selected td{
+	background: #3d80df;
+	color: #ffffff;
+	border-left: 1px solid #346DBE;
+	border-bottom: 1px solid #7DAAEA;
+	}
+	tbody tr.ruled td{
+	color: #000;
+	background-color: #C6E3FF;
+	border-color: #3292FC;
+	}
+	#dataTable .trRed td{
+		background: #FF0000;
+	}
+#end
+
+
+##这个是动态表格效果JS
+#macro(showStyleJs)
+		(function(){
+			var tables = document.getElementsByTagName("table");
+			for(var x=0;x!=tables.length;x++){
+				var table = tables[x];
+				if (! table){ return; }
+				var tbodies = table.getElementsByTagName("tbody");
+				for (var h = 0; h < tbodies.length; h++){
+					var even = true;
+					var trs = tbodies[h].getElementsByTagName("tr");
+					for (var i = 0; i < trs.length; i++){
+						trs[i].onmouseover=function(){
+							this.className += " ruled"; return false
+						}
+						trs[i].onmouseout=function(){
+							this.className = this.className.replace("ruled", ""); return false
+						}
+						if(even)
+						trs[i].className += " even";
+						even = !even;
+					}
+				}
+			}
+		}
+		)()
+#end
+
+#macro(showMapJs)
+	function struct(key, value){
+		this.key = key;
+		this.value = value;
+	}
+	function MapClass(){
+		this.map = new Array();
+		this.put=function(key, value){
+    		for (var i = 0; i < this.map.length; i++){
+    			if ( this.map[i].key === key ){
+    				this.map[i].value = value;
+    				return;
+    			}
+    		}
+    		this.map[this.map.length] = new struct(key, value);
+		};
+		this.get = function(key){
+			for (var i = 0; i < this.map.length; i++){
+				if ( this.map[i].key === key ){
+					return this.map[i].value;
+				}
+			}
+			return null;
+		};
+		this.getKeys=function(){
+			var keys=new Array();
+			for (var i = 0; i < this.map.length; i++){
+    			keys[i]=this.map[i].key;
+    		}
+			return keys;
+		};
+		this.getByIndex=function(index){
+			return this.map[index].value;
+		};
+		//Delete
+		this.remove=function(key){
+    			var v;
+    			for (var i = 0; i < this.map.length; i++){
+    				v = this.map.pop();
+    				if ( v.key === key )
+    					continue;
+    					this.map.unshift(v);
+    				}
+    			};
+    	this.getCount= function(){
+			return this.map.length;
+    	};
+    	this.isEmpty=function(){
+			return this.map.length <= 0;
+    	};
+		this.containsKey=function(key){
+			var result=false;
+			for (var i = 0; i < this.map.length; i++){
+    			if ( this.map[i].key === key ){
+    				result=true;
+    				break;
+    			}
+    		}
+			return result;
+		};
+		this.getKey=function(index){
+			return this.map[index].key;
+		}
+	}
+#end
+
+##打印RJDBC表格
+#macro(showDbTableData $dbList $cmList $datas $dbTypeColspan $dbType $rjdbcRemark)
+	#if($dbList&&!$dbList.isEmpty())
+		<tr>
+			<td colspan="$!dbTypeColspan" align="center" ><span style="color:red;font-weight:bold;font-size:15px;">$dbType</span></td>
+		</tr>
+		#foreach($dbKey in $dbList)
+			<tr  height="40px" class=":dataTr">
+				<td>$!velocityCount</td>
+				<td><input type="checkbox" onclick="lineStyle(this);" /></td>
+				<td>$dbKey</td>
+				#if($rjdbcRemark&&$rjdbcRemark.get("$dbKey"))
+					#set($dbRemark=$rjdbcRemark.get("$dbKey"))
+					#set($dbSid=$strUtil.substringAfter($dbRemark,":"))
+				#end
+				<td>#if($dbSid&&"null"!="$!dbSid")$dbSid#else&nbsp;#end</td>
+				#foreach($cm in $cmList)
+					#set($dataKey="$!dbKey"+"_"+"$!cm")
+					#set($dataProp=$!datas.get("$!serverKey"))
+					#if($!dataProp.get("$!dataKey"))
+						#set($dataValue=$!dataProp.get("$!dataKey"))
+					#end
+					#set($radioName="$!dbKey")
+					#set($radioId="$!dbKey"+"_"+"$!cm")
+					<td>
+						#if($dataValue&&"true"=="$!dataValue")
+							<input name="$!dbKey" id="$!radioId" name="$!radioName" class=":radioClass" type="radio" checked="checked" disabled="true"/>
+						#elseif($dataValue&&"null"!="$!dataValue")
+							<input name="$!dbKey" id="$!radioId" name="$!radioName" class=":radioClass"  type="radio" disabled="true"/>
+						#else
+							&nbsp;
+						#end
+					</td>
+					#set($dataValue="null")
+				#end
+			</tr>
+			#set($dbSid="null")
+		#end
+	#end
+#end
+
+##打印FORM中字段的出错信息
+#macro(fieldErrMsg $field)
+	#if(!$field.valid)
+        <span style="color:red;">$field.message</span>
+	#end
+#end
+
+
+#*
+分页的css
+*#
+#macro(pagerCss)
+	<style>
+	DIV.page {
+		PADDING-RIGHT: 3px; PADDING-LEFT: 3px; FONT-SIZE: 0.85em; PADDING-BOTTOM: 3px; MARGIN: 3px; PADDING-TOP: 3px; FONT-FAMILY: Tahoma,Helvetica,sans-serif; TEXT-ALIGN: center
+	}
+	DIV.page A {
+		BORDER-RIGHT: #ccdbe4 1px solid; PADDING-RIGHT: 8px; BACKGROUND-POSITION: 50% bottom; BORDER-TOP: #ccdbe4 1px solid; PADDING-LEFT: 8px; PADDING-BOTTOM: 2px; BORDER-LEFT: #ccdbe4 1px solid; COLOR: #0061de; MARGIN-RIGHT: 3px; PADDING-TOP: 2px; BORDER-BOTTOM: #ccdbe4 1px solid; TEXT-DECORATION: none
+	}
+	DIV.page A:hover {
+		BORDER-RIGHT: #2b55af 1px solid; BORDER-TOP: #2b55af 1px solid; BACKGROUND-IMAGE: none; BORDER-LEFT: #2b55af 1px solid; COLOR: #fff; BORDER-BOTTOM: #2b55af 1px solid; BACKGROUND-COLOR: #3666d4
+	}
+	DIV.page A:active {
+		BORDER-RIGHT: #2b55af 1px solid; BORDER-TOP: #2b55af 1px solid; BACKGROUND-IMAGE: none; BORDER-LEFT: #2b55af 1px solid; COLOR: #fff; BORDER-BOTTOM: #2b55af 1px solid; BACKGROUND-COLOR: #3666d4
+	}
+	DIV.page SPAN.current {
+		PADDING-RIGHT: 6px; PADDING-LEFT: 6px; font-size:15px; PADDING-BOTTOM: 2px; COLOR: #000; MARGIN-RIGHT: 3px; PADDING-TOP: 2px
+	}
+
+	DIV.page A.next {
+		BORDER-RIGHT: #ccdbe4 2px solid; BORDER-TOP: #ccdbe4 2px solid; MARGIN: 0px 0px 0px 10px; BORDER-LEFT: #ccdbe4 2px solid; BORDER-BOTTOM: #ccdbe4 2px solid
+	}
+	DIV.page A.next:hover {
+		BORDER-RIGHT: #2b55af 2px solid; BORDER-TOP: #2b55af 2px solid; BORDER-LEFT: #2b55af 2px solid; BORDER-BOTTOM: #2b55af 2px solid
+	}
+	DIV.page A.prev {
+		BORDER-RIGHT: #ccdbe4 2px solid; BORDER-TOP: #ccdbe4 2px solid; MARGIN: 0px 10px 0px 0px; BORDER-LEFT: #ccdbe4 2px solid; BORDER-BOTTOM: #ccdbe4 2px solid
+	}
+	DIV.page A.prev:hover {
+		BORDER-RIGHT: #2b55af 2px solid; BORDER-TOP: #2b55af 2px solid; BORDER-LEFT: #2b55af 2px solid; BORDER-BOTTOM: #2b55af 2px solid
+	}
+	</style>
+#end
+
+#*
+youyu.lqj,分页宏
+uri是分页的超链接，由于有form表单的原因，不能以&结尾，拼装时加上page参数
+pageCount是总页数
+currentPage是当前页
+formId 要结合搜索条件，所有提交的表单改为搜索内容的表单，如果没有，还走分页表单
+*#
+#macro(pager $uri $pageCount $currentPage $formId $pageSizeInt)
+	
+    	
+    <div class="page">
+    	#set($startPage=$currentPage - 5)
+    	#set($endPage=$currentPage + 5)
+    	#if($startPage<=0)
+    		#set($startPage=1)
+    	#end
+    	#set($pages=[$startPage..$endPage])
+    	#set($nextPage=$currentPage + 1)
+		
+		#if("$formId"=="")
+			#foreach($i in $pages)
+        		#if($i<=$pageCount)
+        			#if($i==$currentPage)
+        				<span class="current">$i</span>
+            		#else
+            			<a href="${uri}&page=$i">$i</a>
+            		#end
+        		#end
+    		#end
+			
+			#if($nextPage>$pageCount)
+				
+    		#else
+    			<a href="${uri}&page=$nextPage">下一页</a>
+    		#end
+			
+        	
+        	<span class="current">共${pageCount}页</span>
+        	<form action="$uri"  style='display:inline;'>
+				<span class="current"> 每页显示
+                    <select id="pageSizeInput" name="pageSizeInput"  style="width: 50px">
+                          <option value ="10" #if($pageSizeInt==10) selected="selected" #end>10</option>
+                          <option value ="20" #if($pageSizeInt==20) selected="selected" #end>20</option>
+                          <option value="40" #if($pageSizeInt==40) selected="selected" #end>40</option>
+                          <option value="60" #if($pageSizeInt==60) selected="selected" #end>60</option>
+                        </select>
+				条</span>
+        		<span class="current"> 到第<input type="text" id="page" name="page" style="width: 50px" 
+					onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" />页</span>
+    			<input type="submit" value="确定"/>
+    		</form>
+		#else
+			#foreach($j in $pages)
+        		#if($j<=$pageCount)
+        			#if($j==$currentPage)
+        				<span class="current">$j</span>
+            		#else
+            			<a href="#" onclick="nextPageClicked('${formId}',${j})" >$j</a>
+            		#end
+        		#end
+    		#end
+			
+			#if($nextPage>$pageCount)
+				
+    		#else
+    			<a href="#" onclick="nextPageClicked('${formId}',${nextPage})" >下一页</a>
+    		#end
+			
+    		
+            <span class="current">共${pageCount}页</span>
+            <form action="#"  style='display:inline;'>
+				<span class="current"> 每页显示
+                    <select id="pageSizeInput" name="pageSizeInput" style="width: 50px">
+                          <option value ="10" #if($pageSizeInt==10) selected="selected" #end>10</option>
+                          <option value ="20" #if($pageSizeInt==20) selected="selected" #end>20</option>
+                          <option value="40" #if($pageSizeInt==40) selected="selected" #end>40</option>
+                          <option value="60" #if($pageSizeInt==60) selected="selected" #end>60</option>
+                        </select>
+				条</span>
+        		<span class="current"> 到第<input type="text" id="pageInput" name="pageInput" style="width: 50px" 
+					onkeyup="this.value=this.value.replace(/[^0-9]/g,'')"/>页</span>
+				<input type="button" onclick="pageFormSubmit('${formId}')" value="确定"/>
+            	<!--<input type="submit" onclick="pageFormSubmit('${formId}')" value="确定"/>-->
+            </form>	
+
+    	#end
+    </div>
+	
+	<script >
+        function nextPageClicked(formId,nextPage){
+            
+        	var form = document.getElementById(formId);
+        	var pageInput = document.createElement("input"); 
+        	pageInput.type="hidden"; 
+        	pageInput.name="page";
+        	pageInput.value = nextPage;
+        	pageInput.id="page";
+        	form.appendChild(pageInput);
+        	
+        	var pageSize = document.createElement("input"); 
+        	pageSize.type="hidden"; 
+        	pageSize.name="pageSize";
+        	pageSize.value = document.getElementById("pageSizeInput").value;
+        	pageSize.id="pageSize";
+        	form.appendChild(pageSize);
+        	
+        	form.submit();
+        	
+        }
+        
+        function pageFormSubmit(formId){
+        	
+        	var form = document.getElementById(formId);
+        	var pageInput = document.createElement("input"); 
+        	pageInput.type="hidden"; 
+        	pageInput.name="page";
+        	pageInput.value = document.getElementById("pageInput").value;
+        	pageInput.id="page";
+        	form.appendChild(pageInput);
+        	
+        	var pageSize = document.createElement("input"); 
+        	pageSize.type="hidden"; 
+        	pageSize.name="pageSize";
+        	pageSize.value = document.getElementById("pageSizeInput").value;
+        	pageSize.id="pageSize";
+        	form.appendChild(pageSize);
+        	
+        	form.submit();
+        	return false;
+        }
+    </script>
+#end
+
+

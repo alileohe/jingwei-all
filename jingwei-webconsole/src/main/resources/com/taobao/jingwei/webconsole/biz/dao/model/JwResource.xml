@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"  
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="resource">
+
+	<resultMap id="ResourceResult"
+		class="com.taobao.jingwei.webconsole.biz.dao.model.JwResource">
+		<result property="id" column="id" />
+		<result property="resourceName" column="resource_name" />
+		<result property="resourceType" column="resource_type" />
+		<result property="zkEnv" column="zk_env" />
+	</resultMap>
+
+	<typeAlias alias="JwResource"
+		type="com.taobao.jingwei.webconsole.biz.dao.model.JwResource" />
+
+	<insert id="save" parameterClass="JwResource">
+		insert into
+		jw_resource(resource_name, resource_type, zk_env)
+		values(#resourceName#, #resourceType#, #zkEnv#)
+	</insert>
+
+	<select id="getAll" parameterClass="java.util.Map" resultMap="ResourceResult">
+		select id,  resource_name, resource_type, zk_env
+		from jw_resource where zk_env=#zkEnv#
+	</select>
+	
+	<delete id="deleteById" parameterClass="java.util.Map">
+	   <![CDATA[ 
+	    delete from jw_resource where id=#id# and zk_env=#zkEnv#
+	   ]]> 
+	</delete>
+</sqlMap> 

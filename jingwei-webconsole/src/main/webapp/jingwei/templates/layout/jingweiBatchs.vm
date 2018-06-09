@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>精卫填海-任务管理</title>
+		$control.setTemplate("tbraControl.vm")
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/button/assets/skins/sam/button.css" />
+		<script type="text/javascript" src="$jsModule.getURI('/FC_jquery-1.4.2.min.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/jquery.easydrag.js')"></script>
+		<link href="$cssModule.getURI('/codemirror.css')" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="$jsModule.getURI('/codemirror.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/xmlpure.js')"></script>
+		<link href="$cssModule.getURI('/codemirrorDefault.css')" rel="stylesheet" type="text/css">
+		<style type="text/css">
+			.edit_task_div {
+			z-index: 9999;
+			margin-bottom: 3px;
+			display: none;
+			position: absolute;
+			background: #dedede;
+			border-top: ridge;
+			border-right: groove;
+			border-bottom: groove;
+			border-left: ridge;
+			width: 600px;
+			padding: 10px;
+			font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+			color: #4f6b72;
+			}
+			.edit_task_div_head{
+			height:30px;
+			cursor:move;
+			}
+			.pop_box_body{
+			}
+			.pop_group_header{
+			float: left;
+			text-align:center;
+			font-size: 12px;
+			font-weight: bold;
+			}
+			.p_btn {
+			width: 60px;
+			}
+			.add_group_div {
+			z-index: 9999;
+			margin-bottom: 3px;
+			display: none;
+			position: absolute;
+			background: #dedede;
+			border-top: ridge;
+			border-right: groove;
+			border-bottom: groove;
+			border-left: ridge;
+			padding: 5px;
+			width: 330px;
+			font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+			color: #4f6b72;
+			}
+		</style>
+	</head>
+<body class="yui-skin-sam">
+	<div id="header">$control.setTemplate("top.vm")</div>
+	<div id="contain">
+		<div id="mainbg">
+			<div id="left">
+				<div>$control.setTemplate("left.vm")</div>
+			</div>
+			<div id="right">
+				<div >$screen_placeholder</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer">$control.setTemplate("footer.vm")</div>
+</body>
+</html>

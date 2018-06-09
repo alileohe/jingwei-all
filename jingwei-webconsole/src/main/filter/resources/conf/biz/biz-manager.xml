@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="jwConfigManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.JingweiZkConfigManager"
+		init-method="init" destroy-method="destroy" singleton="true">
+		<constructor-arg value="${jingwei.zk.server.host}" />
+		<property name="zkSessionTimeoutMs" value="${jingwei.zk.server.session.timeout}" />
+		<property name="zkConnectionTimeoutMs" value="${jingwei.zk.server.connection.timeout}" />
+		<property name="zkStatServers" value="${jingwei.zk.server.stat}" />
+		<property name="zkStatContextPath" value="${jingwei.zk.server.stat.contextpath}" />
+	</bean>
+	<bean id="jwJadeEnvMap"
+		class="com.taobao.jingwei.webconsole.biz.manager.JadeEnvMapManager"
+		init-method="init" singleton="true">
+		<property name="jadeEnvList" value="${jade.env.map}" />
+	</bean>
+	<bean id="positionHelper"
+		class="com.taobao.jingwei.webconsole.util.position.MasterPositionHelper"
+		singleton="true">
+		<property name="action" value="${jade.tddl.query.pre}" />
+	</bean>
+	<bean id="jwTaskManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.impl.JingweiTaskManagerImpl" />
+	<bean id="jwCommonManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.impl.JingweiCommonManagerImpl" />
+	<bean id="jwChartManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.impl.JingweiChartManagerTLogImpl" />
+	<bean id="jwMonitorManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.JingweiMonitorManager"
+		init-method="init" singleton="true">
+		<property name="loadMonitor" value="${jingwei.monitor.autoload}" />
+		<property name="serviceType" value="${jingwei.msg.serviceType}" />
+		<property name="serviceVersion" value="${jingwei.msg.serviceVersion}" />
+		<property name="customServerHosts" value="${jingwei.msg.customServerHosts}" />
+		<property name="serviceGroup" value="${jingwei.msg.serviceGroup}" />
+		<property name="connectionTimeout" value="${jingwei.msg.connectionTimeout}" />
+		<property name="receiveTimeout" value="${jingwei.msg.receiveTimeout}" />
+		<property name="alertUsers" value="${jingwei.msg.alertUsers}" />
+		<property name="smsNumbers" value="${jingwei.msg.smsNumbers}" />
+	</bean>
+	<!-- <bean id="dataCache" class="com.taobao.jingwei.webconsole.util.DataCache" 
+		singleton="true"> </bean> -->
+	<bean id="envDataCache" class="com.taobao.jingwei.webconsole.util.EnvDataCache"
+		singleton="true">
+		<constructor-arg value="${jingwei.zk.server.host}" />
+	</bean>
+	<bean id="dataCacheMaintain" class="com.taobao.jingwei.webconsole.util.DataCacheMaintain"
+		init-method="init">
+		<property name="jwConfigManager" ref="jwConfigManager"></property>
+		<property name="jwTaskAO" ref="jwTaskAO"></property>
+		<property name="jwServerAO" ref="jwServerAO"></property>
+		<property name="envDataCache" ref="envDataCache"></property>
+		<property name="jwMonitorAO" ref="jwMonitorAO"></property>
+		<property name="jwGroupAO" ref="jwGroupAO"></property>
+	</bean>
+	<bean id="uploadService"
+		class="com.taobao.jingwei.webconsole.util.upload.UploadFileImpl">
+		<property name="consoleServerHosts">
+			<ref bean="consoleServerHosts" />
+		</property>
+	</bean>
+	<bean id="consoleServerHosts" class="com.taobao.jingwei.webconsole.util.ConsoleServerHosts">
+		<property name="consoleIps">
+			<value>${peer.host.ip}</value>
+		</property>
+		<property name="serverPort">
+			<value>${jingwei.server.port}</value>
+		</property>
+		<property name="consolePort">
+			<value>${jingwei.console.port}</value>
+		</property>
+	</bean>
+	<bean id="jwRightManager"
+		class="com.taobao.jingwei.webconsole.biz.manager.JingweiRightManeger">
+		<property name="superUsers">
+			<value>${jingwei.right.supers}</value>
+		</property>
+	</bean>
+</beans>

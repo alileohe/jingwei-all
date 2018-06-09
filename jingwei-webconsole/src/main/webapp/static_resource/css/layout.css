@@ -1,0 +1,207 @@
+#header {
+	margin-right: auto;
+	margin-left: auto;
+	padding: 0px;
+	width: 1000px;
+	/*background: #EEE;
+	height: 60px;*/
+	text-align: left;
+}
+
+#nav-bar{
+	margin-left:130px;
+	position:relative;
+	top:17px;
+	/*background:#d9e1f7;*/
+	background:#f5f5f5;
+	padding:0 4px;
+	height:20px;
+	line-height:20px;
+	border-top:1px solid #DEDEDE;
+	border-bottom:1px solid #DEDEDE;
+}
+
+#contain {
+	margin-left: auto;
+	margin-right: auto;
+	width: 1000px;
+}
+
+#mainbg {
+	float: left;
+	padding: 0px;
+	width: 1000px;
+}
+
+#right {
+	float: left;
+	margin: 2px0px 2px0px;
+	padding: 0px;
+	width: 800px;
+	text-align: left;
+}
+
+#left {
+	float: left;
+	margin: 2px 2px0px0px;
+	padding: 0px;
+	/*background: #d9e1f7;*/
+	width: 150px;
+	text-align: left;
+}
+
+#footer {
+    border-top:1px solid #DEDEDE;
+	clear: both;
+	margin-right: auto;
+	margin-left: auto;
+	padding: 0px;
+	width: 1000px;
+	/*background: #EEE;*/
+    height:100px;
+}
+
+#copyright{
+	text-align:center;
+	margin-top:20px;
+	color:#77C;
+}
+
+.text {
+	margin: 0px;
+	padding: 20px;
+}
+
+#shelter {
+	position: absolute;
+	left: 0;
+	top: 0;
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 8;
+	background-color: #CCCCCC;
+	filter: Alpha(opacity =   80);
+	-webkit-opacity: 0.8;
+	-moz-opacity: 0.8;
+	opacity:0.8
+}
+
+#dataDiv {
+	position: absolute;
+	z-index: 10;
+	/*left: expression(document.body.scrollWidth/ 4);
+	top: expression(document.body.scrollHeight/ 4);*/
+	width: 800px;
+	background-color: #F2F3F7;
+}
+
+#dataWrap {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 5;
+	display: none;
+}
+
+#zkHost{
+	text-align: right;
+}
+
+table.taskTable {
+	color: #FFF;
+	border-bottom: #000 medium solid;
+	border-left: #000 medium solid;
+	border-right: #000 medium solid;
+	border-top: #000 medium solid;
+	font-size: 12px;
+	font-family: "Î¢ÈíÑÅºÚ";
+	overflow: auto;
+	border-collapse: collapse;
+}
+
+table.taskTable td {
+	color: #000;
+	font-size: 14px;
+	font-family: "Î¢ÈíÑÅºÚ";
+	border-top: black thin solid;
+	border-left: black thin solid;
+	border-right: black thin solid;
+	border-collapse: collapse;
+	margin: 0px;
+}
+
+table.taskTable tbody tr {
+	background: #FFF;
+}
+
+table.taskTable tbody tr:hover {
+	background: #EBFEC5;
+}
+
+table.taskTable tr.task_title {
+	background: url(../images/login-top-bg.gif);
+	text-align: center;
+}
+
+table.taskTable tr.task_title:hover {
+	background: url(../images/login-top-bg.gif);
+}
+
+table.yugong_detal {
+	color: #000;
+	border-bottom: #000 medium solid;
+	border-left: #000 medium solid;
+	border-right: #000 medium solid;
+	border-top: #000 medium solid;
+	font-size: 14px;
+	font-family: "Î¢ÈíÑÅºÚ";
+	overflow: auto;
+	border-collapse: collapse;
+}
+table.yugong_detal td {
+	border-top: black thin solid;
+	border-left: black thin solid;
+	border-right: black thin solid;
+	border-collapse: collapse;
+}
+
+div.yugongTaskGroup{
+	width: 100%;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	}
+	
+.yugongAppTitle{
+	width: 50%;
+	border: 0;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	background: url(../images/login-top-bg.gif);
+	font-size:14px;
+	height: 20px;
+	}
+.yugongAppTitle2{
+	width: 50%;
+	border: 0;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	font-size:14px;
+	height: 20px;
+	}
+.yugongLog{
+	font-family: "Î¢ÈíÑÅºÚ";
+	font-size: 10px;
+	text-align: left;
+	color:#fff;
+}
+
+table.taskTable tr.nc_bk {
+	background: #FFF;
+}
+
+table.taskTable tr.nc_bk:hover {
+	background: #FFF;
+}

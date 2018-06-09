@@ -1,0 +1,544 @@
+<table class="jwTable">
+	<tr>
+		<th>ZK服务器</th>
+		<td colspan="3">$!hostName</td>
+	</tr>
+	<tr>
+		<th width="18%">Task ID</th>
+		<td colspan="3">
+			$!taskId
+			<a href="$jingweiModule.setTarget('jingweiTaskAlarm.vm').render()?taskId=$!taskId&host=$!host" target="_blank">查看告警信息</a>
+		</td>
+	</tr>
+	<tr>
+		<th width="20%">
+			任务实例数
+		</th>
+		<td>
+			$!taskNode.getTaskInstanceCount()
+		</td>
+		<th>启动多线程</th>
+		<td>#if($taskNode.isMultiThread()) True #else False #end</td>
+	</tr>
+	<tr #if(!$taskNode.isMultiThread()) style="display:none" #end>
+		<th>队列容量</th>
+		<td>$!taskNode.getQueueCapacity()</td>
+		<th>最大线程数</th>
+		<td>$!taskNode.getMaxThreadCount()</td>
+	</tr>
+	<tr>
+		<th>&nbsp;Group Setting</th>
+		<td  colspan="3">
+			<table id="mutil_group_table">
+				#foreach($groupingSetting in $groupingSettings)
+				<tr>
+					<td width="20px;">库</td><td>$groupingSetting.schemaReg</td>
+					<td width="20px;">表</td><td>$groupingSetting.tableReg</td>
+					<td width="35px;">分库键</td><td>$groupingSetting.fields</td>
+				</tr>
+				#end
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<th>Extractor类型</th>
+		<td>
+			$!taskNode.getExtractorType()&nbsp;
+			<select id="extractor" style="display:none">
+				#foreach($extractor in $!extractorType.entrySet())
+					<option value="$extractor.value" #if($sExtractorType == $extractor.value) selected #end>$extractor.key</option>
+				#end
+			</select>
+			<input id="autoSwitch_box" type="checkbox" onclick="return false" #if($binlogData.isAutoSwitch()) checked #end />自动切换
+			<label id="admode"><input id="complexity_box" type="checkbox" onclick="chgBinlogMode(this)">高级模式</label>
+			<input type="hidden" id="complexity" name="complexity" value="false" />
+		</td>
+		<th>使用上次位点</th>
+		<td>#if($!taskNode.isUseLastPosition()) True #else False #end</td>
+	</tr>
+	<tr id="extractor_row" #if($!taskNode.getExtractorType().getType() == '3') style="display:none" #end>
+		<th>Extractor数据</th>
+		<td id="extractorData" colspan="3">
+		</td>
+	</tr>
+	<tr>
+		<th>Applier类型</th>
+		<td colspan="3">
+			$!taskNode.getApplierType()&nbsp;
+			<select id="applier" style="display:none">
+				#foreach($applier in $!applierType.entrySet())
+					<option value="$applier.value" #if($sApplierType == $applier.value) selected #end>$applier.key</option>
+				#end
+			</select>
+		</td>
+	</tr>
+	<tr id="appGolbalFilter_div" #if(!$appGlobalFilter) style="display:none" #end>
+		<th valign="top">Applier过滤</th>
+		<td colspan="3">
+			<table>
+				<tr>
+					<td>库名表达式</td>
+					<td>$!appGlobalFilter.getSrcSchemaReg()</td>
+					<td>表名表达式</td>
+					<td>$!appGlobalFilter.getSrcTableReg()</td>
+				</tr>
+				<tr>
+					<td>Action过滤</td>
+					<td colspan="3">
+						<ul>
+							<li>INSERT :$!appGlobalFilter.getEventFilterNode().getIncludeInsert()</li>
+							<li>UPDATE:$!appGlobalFilter.getEventFilterNode().getIncludeUpdate()</li>
+							<li>DELETE :$!appGlobalFilter.getEventFilterNode().getIncludeDelete()</li>
+						</ul>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="4">字段过滤</td>
+				</tr>
+				<tr>
+					<td colspan="4">
+						<ul #if($isAppGlobalFilterAdvMode) style="display:none" #end>
+							#foreach($global in $appGlobalColumnFilters)
+								<li>$global</li>
+							#end
+						</ul>
+						<!-- 高级模式 -->
+						<table id="appGlobalColumnFilterAdv" #if(!$isAppGlobalFilterAdvMode) style="display:none" #end>
+							<tr>
+								<td colspan="4">
+									<textarea name="appGlobalSourceCode" cols="80" rows="20">$!appGlobalFilter.getEventFilterNode().getSourceCode()</textarea>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr id="applier_row" #if($!taskNode.getApplierType().getType() == '3') style="display:none" #end>
+		<th>Applier数据</th>
+		<td id="applierData" colspan="3">
+		</td>
+	</tr>
+	<tr>
+		<th>时间</th>
+		<td>#if($pTimestamp) $pTimestamp #else &nbsp; #end</td>
+		<th>位点</th>
+		<td>$!position.getPosition()&nbsp;</td>
+	</tr>
+	<tr>
+		<th>
+			统计周期
+		</th>
+		<td>
+			$!taskNode.getStatsPeriod() ms
+		</td>
+		<th>
+			事务统计周期
+		</th>
+		<td>
+			$!taskNode.getSummaryPeriod() ms
+		</td>
+	</tr>
+	<tr>
+		<th>
+			位点提交周期
+		</th>
+		<td>
+			$!taskNode.getComitLogPeriod() ms
+		</td>
+		<th>
+			位点提交数
+		</th>
+		<td>
+			$!taskNode.getComitLogCount() ms
+		</td>
+	</tr>
+	<tr>
+		<th>JAVA_OPT</th>
+		<td colspan="3">
+				$!taskNode.getJavaOpt() &nbsp;
+				<br/>
+		<font color="red">默认：-server -Xms256m -Xmx256m -XX:PermSize=64m -XX:MaxPermSize=64m -Xss1m -XX:+UseParallelGC -XX:ParallelGCThreads=4</font>
+		</td>
+	</tr>
+	<tr>
+		<th>描述</th>
+		<td colspan="3">
+			$!taskNode.getDesc()&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td colspan="4" align="center"><a href="#" onclick="closeWindow();">关闭</a></td>
+	</tr>
+</table>
+<div id="extractor_meta" style="display:none">
+	<table>
+		<tr>
+			<td>主题</td>
+			<td>$!metaExtractorNode.getMetaTopic() &nbsp;</td>
+			<td>分组</td>
+			<td>$!metaExtractorNode.getMetaGroup()&nbsp;</td>
+		</tr>
+		<tr>
+			<td>抓取超时时间</td>
+			<td>$!metaExtractorNode.getFetchTimeoutInMills()&nbsp;ms</td>
+			<td>抓取延时时间</td>
+			<td>$!metaExtractorNode.getMaxDelayFetchTimeInMills()&nbsp;ms</td>
+		</tr>
+		<tr>
+			<td>最大消息长度</td>
+			<td>$!metaExtractorNode.getMaxMessageSize()&nbsp;</td>
+			<td>抓取消息线程数</td>
+			<td>$!metaExtractorNode.getFetchRunnerCount()&nbsp;</td>
+		</tr>
+		<tr>
+			<td>ZK主机</td>
+			<td>$!metaExtractorNode.getMetaZkHosts()&nbsp;</td>
+			<td>ZK连接超时时间</td>
+			<td>$!metaExtractorNode.getMetaZkConnectionTimeout()&nbsp;</td>
+		</tr>
+		<tr>
+			<td>ZK会话超时时间</td>
+			<td colspan="3">$!metaExtractorNode.getMetaZkSessionTimeoutMs()&nbsp;</td>
+		</tr>
+	</table>
+</div>
+<div id="enableApplierFilter" style="display:none" />
+<div id="extractor_binlog" style="display:none">
+	<table>
+		<tr>
+			<td>主机</td>
+			<td>$!binlogProperties.getProperty('replicator.global.master')</td>
+			<td>端口</td>
+			<td>$!binlogProperties.getProperty('replicator.global.db.port')</td>
+		</tr>
+		<tr>
+			<td>用户名</td>
+			<td>$!binlogProperties.getProperty('replicator.global.db.user')</td>
+			<td>密码</td>
+            <td style="color:#FFFFFF">$!binlogProperties.getProperty('replicator.global.db.password')</td>
+		</tr>
+		<tr>
+			<td>库名表达式</td>
+			<td>$!binlogProperties.getProperty('replicator.global.filter.dbRegex')</td>
+			<td>表名表达式</td>
+			<td>$!binlogProperties.getProperty('replicator.global.filter.tabRegex')</td>
+		</tr>
+		<tr>
+			<td>字符集</td>
+			<td colspan="3">$!binlogProperties.getProperty('replicator.plugin.directRelay.charset')</td>
+		</tr>
+	</table>
+</div>
+<div id="extractor_binlog_auto" style="display:none">
+	<table>
+		<tr>
+			<td>组名</td>
+			<td colspan="3">$!binlogData.getGroupName()</td>
+		</tr>
+		<tr>
+			<td>用户名</td>
+			<td>$!binlogProperties.getProperty('replicator.global.db.user')</td>
+			<td>密码</td>
+			<td style="color:#FFFFFF">$!binlogProperties.getProperty('replicator.global.db.password')</td>
+		</tr>
+		<tr>
+			<td>切换规则</td>
+            <td>
+				$!binlogData.getSwitchPolicy()
+			</td>
+			<td>字符集</td>
+			<td>$!binlogProperties.getProperty('replicator.extractor.mysql.charset')</td>
+		</tr>
+		<tr>
+			<td>库名表达式</td>
+			<td>$!binlogProperties.getProperty('replicator.global.filter.dbRegex')</td>
+			<td>表名表达式</td>
+			<td>$!binlogProperties.getProperty('replicator.global.filter.tabRegex')</td>
+		</tr>
+	</table>
+</div>
+<div id="extractor_binlog_com" style="display:none">
+	<textarea id="edit" cols="70" rows="10" readonly>$!binData</textarea>
+</div>
+<div id="extractor_binlog_com_auto" style="display:none">
+	<table>
+		<tr>
+			<td>应用名</td>
+			<td>$!binlogData.getAppName()</td>
+			<td>组名</td>
+			<td>$!binlogData.getGroupName()</td>
+		</tr>
+		<tr>
+			<td>切换规则</td>
+            <td colspan="3">
+				$!binlogData.getSwitchPolicy()
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">
+				<textarea id="extractor_data" name="binData" cols="60" rows="5">$!newBinData</textarea>
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="extractor_prop_ad" style="display:none">
+    <textarea id="extractor_data_prop" name="content" cols="60" rows="5">$!propBinData</textarea>
+</div>
+
+<div id="applier_database" style="display:none">
+	<input type="hidden" id="tableMapping" name="tableMapping" />
+	<input type="hidden" id="columnMapping" name="columnMapping" />
+	<input type="hidden" id="ignoreTableList" name="ignoreTableList" />
+	<table id="applier_db_table">
+		<tr>
+			<td>Matrix名</td>
+			<td>$!dban.getMatrixName()</td>
+			<td>规则名</td>
+			<td>$!dban.getRuleName()</td>
+		</tr>
+		<tr>
+			<td>数据库类型</td>
+			<td colspan="3">
+				$!dban.getDbType()
+			</td>
+		</tr>
+		<tr>
+			<td>覆盖数据</td>
+			<td>#if($dban.isReplace() || $dban.isReplace()) True #else False #end</td>
+			<td title="当错误发生时，继续执行后续操作。">允许错误</td>
+			<td>#if($dban.isFailContinue() || !$dban || $dban.isFailContinue()) True #else False #end</td>
+		</tr>
+		<tr>
+			<td>Schema名</td>
+			<td colspan="3">$!schemas</td>
+		</tr>
+		#foreach($entry in $dban.getLogicTableNames().entrySet())
+			<tr id="tr_$velocityCount">
+				<td colspan="4">
+					<table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'" onmouseout="this.style.border='1px solid #fff'">
+						<tr>
+							<th colspan="4">表映射</th>
+						</tr>
+						<tr>
+							<td>源表名</td>
+							<td>$!entry.getKey()</td>
+							<td>目标表名</td>
+							<td>$!entry.getValue()</td>
+						</tr>
+						<tr>
+							<td>列映射</td>
+							<td colspan="3">
+								<ul>
+									#foreach($tMapping in $dban.getColumnMapping().get($entry.getKey()).entrySet())
+										<li>$entry.getKey().$tMapping.getKey() -> $tMapping.getValue()</li>
+									#end
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<td>列过滤</td>
+							<td colspan="3">
+								<ul>
+                                    <li><b>#if($dban.getFilterFlags().get($entry.getKey())) 包含  #else 排除  #end</b></li>
+									#foreach($ignore in $dban.getIgnoreColumns().get($entry.getKey()))
+										<li>$entry.getKey().$ignore</li>
+									#end
+								</ul>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+<div id="applier_meta" style="display:none">
+	<!-- <textarea id="applier_data" name="$group.applierData.key" cols="60" readonly  rows="8">$!taskNode.getApplierData()</textarea> -->
+	<table>
+		<tr>
+			<td>主题</td>
+			<td>$!metaApplierNode.getMetaTopic()</td>
+			<td>分库键</td>
+			<td>$!metaApplierNode.getShardColumn()</td>
+		</tr>
+		<tr>
+			<td>是否拆分事务</td>
+			<td>#if($metaApplierNode.isSplitTxEvent()) True #else False #end</td>
+			<td>最大事件长度</td>
+			<td>$!metaApplierNode.getMaxEventSize()</td>
+		</tr>
+		<tr>
+			<td>发送超时时间</td>
+			<td>$!metaApplierNode.getSendTimeOut()</td>
+			<td>压缩类型</td>
+			<td>
+				$!metaApplierNode.getAppCompressionType()
+			</td>
+		</tr>
+		<tr>
+			<td>Action过滤</td>
+			<td colspan="3">
+				<ul>
+					<li>INSERT :$!appInsert</li>
+					<li>UPDATE:$!appUpdate</li>
+					<li>DELETE :$!appDelete</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td>启动字段过滤</td>
+			<td colspan="3">#if($metaApplierNode.isEnableColumnfilter()) True #else False #end</td>
+		</tr>
+		<tr #if(!$metaApplierNode.isEnableColumnfilter()) style="display:none" #end>
+			<td colspan="4">
+				<table>
+					<tr>
+						<th>字段过滤</th>
+					</tr>
+					<tr>
+						<td>
+							<ul>
+								#foreach($fl in $metaEventFilterData)
+									<li>$fl</li>
+								#end
+							</ul>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="multi_applier_meta" style="display:none">
+	<!-- <textarea id="applier_data" name="$group.applierData.key" cols="60" rows="8">$group.applierData.value</textarea> -->
+	<table id="multi_meta_table">
+		#foreach($multiMetaApplierNode in $multiMetaApplier)
+			<tr>
+				<td colspan="4">
+					<table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'" onmouseout="this.style.border='1px solid #fff'">
+						<tr>
+							<th colspan="4">META Applier</th>
+						</tr>
+						<tr>
+							<td>主题</td>
+							<td>$!multiMetaApplierNode.getMultiMetaTopic()</td>
+							<td>分库键</td>
+							<td>$!multiMetaApplierNode.getMultiShardColumn()</td>
+						</tr>
+						<tr>
+							<td>库名表达式</td>
+							<td>$!multiMetaApplierNode.getMultiSrcSchemaReg()</td>
+							<td>表名表达式</td>
+							<td>$!multiMetaApplierNode.getMultiSrcTableReg()</td>
+						</tr>
+						<tr>
+							<td>发送超时时间</td>
+							<td>$!multiMetaApplierNode.getMultiSendTimeOut()</td>
+							<td>压缩类型</td>
+							<td>
+								$!multiMetaApplierNode.getMultiCompressionType()
+							</td>
+						</tr>
+						<tr>
+							<td>是否拆分事务</td>
+							<td>#if($multiMetaApplierNode.getMultiSplitTxEvent()=="true") True #else False #end</td>
+							<td>最大事件长度</td>
+							<td>$!multiMetaApplierNode.getMultiMaxEventSize()</td>
+						</tr>
+						<tr>
+							<td>Action过滤</td>
+							<td colspan="3">
+								<ul>
+									<li>INSERT :$!multiMetaApplierNode.isMultiInsert()</li>
+									<li>UPDATE:$!multiMetaApplierNode.isMultiUpdate()</li>
+									<li>DELETE :$!multiMetaApplierNode.isMultiDelete()</li>
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<td>启动字段过滤</td>
+							<td>#if($!multiMetaApplierNode.getMultiEnableColumnFilter()=="true") True #else False #end</td>
+							<td>高级模式</td>
+							<td>$!multiMetaApplierNode.isMultiColumnFilterAdvEnabled()</td>
+						</tr>
+						<tr #if($!multiMetaApplierNode.getMultiEnableColumnFilter() == "false" || $multiMetaApplierNode.isMultiColumnFilterAdvEnabled()) style="display:none" #end>
+							<td colspan="4">
+								<table>
+									<tr>
+										<th>字段过滤</th>
+									</tr>
+									<tr>
+										<td>
+											<ul>
+												#foreach($filter in $!multiMetaApplierNode.getMultiColumnFilterString())
+													<li>$filter</li>
+												#end
+											</ul>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr #if($!multiMetaApplierNode.getMultiEnableColumnFilter() == "false" || !$multiMetaApplierNode.isMultiColumnFilterAdvEnabled()) style="display:none" #end>
+							<td colspan="4">
+								<textarea name="multiColumnFilterAdv" cols="80" rows="12">$!multiMetaApplierNode.getMultiColumnFilterAdv()</textarea>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+
+<!-- youyu-->
+<div id="applier_andorCommand" style="display:none">
+	<input type="hidden" id="andorTableMapping" name="andorTableMapping" />
+	
+	<table id="applier_andorCommand_table">
+		<tr>
+			<td>andor appName</td>
+			<td>$!andorCommNode.getAppName()</td>
+		</tr>
+		#foreach($entry in $andorCommNode.getCascadeIndexNameMap().entrySet())
+			<tr id="tr_$velocityCount">
+				<td colspan="4">
+					<table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'" onmouseout="this.style.border='1px solid #fff'">
+						<tr>
+							<th colspan="4">级联更新表映射</th>
+						</tr>
+						<tr>
+							<td>表名</td>
+							<td>$!entry.getKey()</td>
+						</tr>
+						#foreach($entryIndex in $entry.getValue().entrySet())
+							<tr>
+        						<td>索引名</td>
+        						<td>$!entryIndex.getKey()</td>
+        						<td>列名列表</td>
+								#set($columns="")
+								#foreach($column in $entryIndex.getValue())
+    								#if($columns=="")
+    									#set($columns=$column)
+    								#else
+    									#set($columns=$columns+","+$column)
+    								#end
+    							#end
+								<td>$!columns</td>
+        					</tr>
+						#end
+					</table>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+
+<input type="hidden" id="number" value="$!dban.getLogicTableNames().size()" />
+</form>
+<script language="javascript">
+	chgApplierType(document.getElementById("applier"));
+	chgExtractorType(document.getElementById("extractor"));
+</script>

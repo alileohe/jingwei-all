@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="GBK" ?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:services="http://www.alibaba.com/schema/services"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.alibaba.com/schema/services http://localhost:8080/schema/services.xsd
+http://www.alibaba.com/schema/services/mapping-rules http://localhost:8080/schema/services-mapping-rules.xsd
+http://www.springframework.org/schema/beans http://localhost:8080/schema/www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 支持${xxx}替换。 -->
+	<services:property-placeholder />
+	<!-- 名称查找规则。 -->
+	<services:mapping-rules
+	xmlns="http://www.alibaba.com/schema/services/mapping-rules">
+		<!-- External target name =>
+		Internal target name -->
+		<!-- External target name =>
+		Internal target name -->
+		<extension-rule id="extension.input">
+			<!-- Velocity -->
+			<mapping extension="htm" to="vm" />
+			<mapping extension="vhtml" to="vm" />
+			<mapping extension="vm" to="vm" />
+		</extension-rule>
+		<!-- Internal target name =>
+		External target name -->
+		<extension-rule id="extension.output">
+			<!-- Velocity -->
+			<mapping extension="htm" to="htm" />
+			<mapping extension="vhtml" to="htm" />
+			<mapping extension="vm" to="htm" />
+		</extension-rule>
+	</services:mapping-rules>
+</beans:beans>

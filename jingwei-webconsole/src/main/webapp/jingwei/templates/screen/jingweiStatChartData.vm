@@ -1,0 +1,82 @@
+#if($!data.getChartType() == 0)
+	{
+	"chart":{ "caption":"$!data.getCaption()","subcaption":"$cd.getKey1()","xaxisname":"$!data.getxAxisName()","yaxisname":"$!data.getyAxisName()","formatNumber":"0","formatNumberScale":"0", "showvalues":"0","drawanchors":"0","anchorRadius":"2"},
+	"categories":[{
+	"category":[
+	#foreach($c in $data.getCategory().entrySet())
+		{"label":"$c.getKey()"}
+		#if($velocityCount != $data.getCategory().size()),#end
+	#end
+	]
+	}
+	],
+	"dataset":[
+	#foreach($ds in $data.getDataset())
+		{
+		"seriesname":"$!ds.getSeriesName()",
+		"data":[
+		#foreach($dsv in $ds.getData())
+			{ "value":"$dsv.getY()", "tooltext" : "$!ds.getSeriesName():$dsv.getLabel(), $dsv.getY()" }
+			#if($velocityCount != $ds.getData().size()),#end
+		#end
+		]
+		}
+		#if($velocityCount != $data.getDataset().size()),#end
+	#end
+	],
+	"styles":[{
+	"definition":[{
+	"style":[{ "name":"CaptionFont", "type":"font", "size":"12" }]
+	}
+	],
+	"application":[{
+	"apply":[{"toobject":"CAPTION", "styles":"CaptionFont" }]
+	}]
+	}]
+	}
+#elseif($!data.getChartType() == 1)
+	{
+	"chart":{ "caption":"$data.getCaption() (周)","subcaption":"$cd.getKey1()","xaxisname":"$!data.getxAxisName()","yaxisname":"$!data.getyAxisName()","showvalues":"1","formatNumber":"0","formatNumberScale":"0","showExportDataMenuItem":"1","exportDataMenuItemLabel":"复制数据至粘贴板","exportDataSeparator":",","exportDataQualifier":""},
+	"categories":[{
+	"category":[
+	#foreach($c in $data.getCategory().entrySet())
+		{"label":"$c.getKey()"}
+		#if($velocityCount != $data.getCategory().size()),#end
+	#end
+	]
+	}
+	],
+	"dataset":[
+	#foreach($ds in $data.getDataset())
+		{
+		"seriesname":"$ds.getSeriesName()",
+		"data":[
+		#foreach($dsv in $ds.getData())
+			{ "value":"$dsv.getX()"}
+			#if($velocityCount != $ds.getData().size()),#end
+		#end
+		]
+		}
+		#if($velocityCount != $data.getDataset().size()),#end
+	#end
+	]
+	}
+#else
+	{
+	"chart":{
+	"caption":"$data.getDataset().get(0).getSeriesName()",
+	"showpercentvalues":"1",
+	"showlegend":"1",
+	"legendposition":"right"
+	},
+	"data":[{
+	#foreach($item in $data.getDataset().get(0).getData())
+		{
+		"label":"$item.getX()",
+		"value":"$item.getY()"
+		}
+		#if($velocityCount != $data.getDataset().get(0).getData().size()),#end
+	#end
+	]
+	}
+#end

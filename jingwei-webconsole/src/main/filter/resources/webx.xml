@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="GBK" ?>
+<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:services="http://www.alibaba.com/schema/services"
+             xmlns:session-stores="http://www.alibaba.com/schema/services/request-contexts/session/stores"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xsi:schemaLocation="http://www.alibaba.com/schema/services http://localhost:8080/schema/services.xsd
+http://www.alibaba.com/schema/services/request-contexts http://localhost:8080/schema/services-request-contexts.xsd
+
+
+
+
+http://www.alibaba.com/schema/services/request-contexts/session/stores http://localhost:8080/schema/services-request-contexts-session-stores.xsd
+
+
+
+
+
+http://www.springframework.org/schema/beans http://localhost:8080/schema/www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 基础配置。 -->
+	<beans:import resource="conf/webx/webx-root.xml" />
+	<!-- 资源装载。 -->
+	<beans:import resource="conf/webx/resources.xml" />
+	<!-- URI生成。 -->
+	<beans:import resource="conf/webx/uris.xml" />
+	<!-- 综合设置。 -->
+	<services:webx-configuration>
+		<!-- 默认将productionMode设为true，建议在jetty插件中设置-DproductionMode=false。 -->
+		<services:components defaultComponent="jingwei" />
+		<services:productionMode>${jingwei.productionMode}</services:productionMode>
+	</services:webx-configuration>
+	<!-- 设置request/response/session。 -->
+	<services:request-contexts xmlns="http://www.alibaba.com/schema/services/request-contexts">
+		<basic />
+		<buffered />
+		<lazy-commit />
+		<parser />
+		<set-locale defaultLocale="zh_CN" defaultCharset="UTF-8" />
+		<session>
+			<id>
+				<cookie path="/" maxAge="0" httpOnly="true" />
+			</id>
+			<stores>
+				<session-stores:cookie-store id="temporaryCookie">
+					<session-stores:cookie name="tmp" />
+				</session-stores:cookie-store>
+			</stores>
+			<store-mappings>
+				<match name="*" store="temporaryCookie" />
+			</store-mappings>
+		</session>
+	</services:request-contexts>
+	<!-- 支持上传文件。 -->
+	<services:upload sizeMax="50M" />
+</beans:beans>

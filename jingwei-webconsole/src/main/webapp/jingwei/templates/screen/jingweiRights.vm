@@ -1,0 +1,277 @@
+<div style="display: block">$control.setTemplate("jingweiZkServer.vm")</div>
+<table id="tar_table" class="table table-striped table-bordered table-condensed">
+
+  <tr>
+	<th width="30px;">序号</th>
+	<th width="50px;">创建者</th>
+	<th>权限</th>
+  </tr>
+#foreach($permissionVo in $permissionVos.values())
+			 <tr>
+	<td>$velocityCount</td>
+	<td>
+		$permissionVo.role
+	</td>
+	<td>
+		<div  style="margin-left:7px;" >
+			<span >
+				Group
+				#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+				<a href="#" onclick="addResource(3, '$permissionVo.role')" class="btn btn-primary btn-small" style="margin-bottom:5px;" >
+					<font style="color:#eeeeee;">添加Group </font>
+				</a> 
+			    #end
+            </span>
+			<span>
+	        	 #foreach($group in $permissionVo.groups.entrySet())
+					<div style="border:1px solid #eee; margin-left:10px;border-style:inset">
+					<span style="float:left;width:15px;">$velocityCount</span>
+	        		<span style="left" class="label ">
+						<a href="#" onclick="sendToGroup('$group.getValue()')">$group.getValue()</a>
+                    </span>
+					#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+	        		<span>
+	        		<a href="#" onclick="delete_permission($group.getKey())" class="btn btn-primary btn-small" style="float:right;margin-right:10px;"><font style="color:#eeeeee; float:right;">删除</font></a> <br>
+	        	    </span>
+					#end
+					</div>
+	        	 #end
+			</span>
+		</div>
+		<hr style="color: #333333; background-color: #333333; height: 1px; margin:5px,0px,5px,0px;">
+		<div   >
+			<span >
+				任务 &nbsp;&nbsp;
+				#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+				<a href="#" onclick="addResource(1, '$permissionVo.role')" class="btn btn-primary btn-small" style="margin-bottom:5px;" >
+					<font style="color:#eeeeee;">添加任务 </font>
+				</a> 
+				#end
+            </span>
+			<span >
+	        	 #foreach($task in $permissionVo.tasks.entrySet())
+					<div style="border:1px solid #eee; margin-left:20px;border-style:inset">
+					<span style="float:left;width:15px;">$velocityCount</span>
+	        		<span style="left" class="label ">
+						<a href="#" onclick="sendToTask('$task.getValue()')">$task.getValue()</a>
+                    </span>
+					#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+	        		<span>
+	        		<a href="#" onclick="delete_permission($task.getKey())" class="btn btn-primary btn-small" style="float:right;margin-right:10px;"><font style="color:#eeeeee; float:right;">删除</font></a> <br>
+	        	    </span>
+					#end
+					</div>
+	        	 #end
+			</span>
+		</div>
+		<hr style="color: #333333; background-color: #333333; height: 1px; margin:5px,0px,5px,0px;">
+		<div   >
+			<span >
+				server &nbsp;&nbsp;
+				#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+				<a href="#" onclick="addResource(2,'$permissionVo.role')" class="btn btn-primary btn-small" style="margin-bottom:5px;" >
+					<font style="color:#eeeeee;">添加server </font>
+				</a> 
+				#end
+            </span>
+			<span >
+	        	 #foreach($server in $permissionVo.servers.entrySet())
+					<div style="border:1px solid #eee; margin-left:20px;border-style:inset">
+					<span style="float:left;width:15px;">$velocityCount</span>
+	        		<span style="left" class="label">
+						<a href="#" onclick="sendToServer('$server.getValue()')">$server.getValue()</a>
+                    </span>
+					#if ($permissionVo.getRightLevel().toString().equals("SUPER_RIGHT"))
+	        		<span>
+	        		<a href="#" onclick="delete_permission($server.getKey())" class="btn btn-primary btn-small" style="float:right;margin-right:10px;"><font style="color:#eeeeee; float:right;">删除</font></a> <br>
+	        	    </span>
+					#end
+					</div>
+	        	 #end
+			</span>
+		</div>	
+		<hr style="color: #333333; background-color: #333333; height: 1px; margin:5px,0px,5px,0px;">
+		<div>
+			花名 :
+			#if(!$permissionVo.getRightLevel().toString().equals("GROUP_RIGHT"))
+			<span >
+				
+				<input id="nick_name_input"/>
+				<a href="#" onclick="addNickName('$permissionVo.role', this)" class="btn btn-primary btn-small" style="margin-bottom:5px;" >
+					<font style="color:#eeeeee;">添加操作者 </font>
+				</a> 
+            </span>
+			#end
+			<span >
+	        	 #foreach($user in $permissionVo.users.entrySet())
+					<div style="border:1px solid #eee; margin-left:20px;border-style:inset">
+					<span style="float:left;width:15px;">$velocityCount</span>
+	        		<span style="left" class="label">$user.getValue()
+                    </span>
+					#if(!$permissionVo.getRightLevel().toString().equals("GROUP_RIGHT"))
+	        		<span>
+	        		<a href="#" onclick="delete_user_role($user.getKey())" class="btn btn-primary btn-small" style="float:right;margin-right:10px;"><font style="color:#eeeeee; float:right;">删除</font></a> <br>
+	        	    </span>
+					#end
+					</div>
+	        	 #end
+			</span>
+		</div>		
+	</td>
+  </tr> 
+#end
+   
+</table>
+
+<script type="text/javascript">
+/**
+ role-id : 角色名，使用花名代替
+ resource_id : 资源名
+ type :  1:任务 2:机器 3:GROUP
+*/
+function delete_permission(id) {
+    var root_path = getApiRootPath();
+	root_path += "&act=deletePermissionById"
+    root_path += "&id=" + id;
+	//alert(root_path);
+	 jQuery.ajax({
+       url: root_path,
+       type: "POST",
+       dataType:'json',
+       success:function(json) {
+		   location.href = getRootPath() + "/jingwei_rights.htm";
+       },
+       error:function(er){
+         alert('失败');
+       }
+     });
+}
+</script>
+<div id="select_task" style="width:300px; height:400px; clear: left; display: none;" title="选择任务" ></div>
+<div id="select_group" style="width:300px; height:400px; clear: left; display: none;" title="选择group"></div>
+<div id="select_server" style="width:300px; height:400px; clear: left; display: none;" title="选择server"></div>
+<div id="select_nickname" style="width:300px; height:400px; clear: left; display: none;" title="添加花名"></div>
+<script type="text/javascript">
+/*
+  type :  1:任务 2:机器 3:GROUP
+*/
+function addResource(type,  role) {
+    var root_path = getApiRootPath();
+	
+	var select_div;
+	var data_url;
+
+	if (type == 1) {
+	    select_div = $('#select_task');
+		data_url = root_path + "&act=getTasksCommand";
+	} else if (type == 3) {
+	    select_div = $('#select_group');
+		data_url = root_path + "&act=getGroupsCommand";
+	} else if (type == 2) {
+	    select_div = $('#select_server');
+		data_url = root_path + "&act=getServersCommand";
+	}
+	
+	select_div.side2side({
+	                     
+	    url: data_url,
+		onConfirm : function(arg) {
+		//  alert(arg);
+         	jQuery.ajax({
+                url: root_path + "&act=saveResources",
+                type: "POST",
+                dataType:'json',
+         	    data:{"resourceName" : arg, "resourceType" : type, "role" : role},
+                success:function(json) {
+                    var isSuccess = json.isSuccess;
+					location.href = getRootPath() + "/jingwei_rights.htm";
+                },
+                error:function(XMLHttpRequest, textStatus, errorThrown) {
+                    // alert(XMLHttpRequest.status);
+		            //alert( XMLHttpRequest.responseText);
+		            //alert(textStatus);
+		            //alert(errorThrown);
+                }
+            });
+		    
+	    },
+    });
+}
+
+function addNickName(roleName, obj) {
+    var nickName = $(obj).prev().val();
+
+	//alert(nickName);
+    if (nickName == "") {
+	    alert("请输入花名！");
+		return;
+	}
+	
+	var url = getApiRootPath() + "&act=userRoleCommand";
+	//alert(url);
+	 jQuery.ajax({
+       url: url,
+       type: "POST",
+       dataType:'json',
+	   data : {"nickName" : nickName, 'roleName' : roleName, 'type' : 'save'},
+       success:function(json) {
+	    //   alert(json);
+		   location.href = getRootPath() + "/jingwei_rights.htm";
+       },
+       error:function(er){
+         alert('失败');
+       }
+     });
+	  
+}
+
+// 删除user-role
+function delete_user_role(id) {
+	
+	var url = getApiRootPath() + "&act=userRoleCommand";
+	//alert(url);
+	 jQuery.ajax({
+       url: url,
+       type: "POST",
+       dataType:'json',
+	   data : {"id" : id,  'type' : 'delete'},
+       success:function(json) {
+		   location.href = getRootPath() + "/jingwei_rights.htm";
+       },
+     });
+}
+</script>
+<script type="text/javascript">
+
+function sendToGroup(groupName) {
+
+    var path = getRootPath();
+	path += "/jingwei_groups.htm?";
+	path += "groupNameCriteria=" + groupName;
+	path += "&host=" +  document.getElementById("host").value;
+	path += "&withRights=true";
+	//alert(path);
+	location.href = path;
+}
+
+function sendToServer(serverName) {
+
+    var path = getRootPath();
+	path += "/jingwei_servers.htm?";
+	path += "criteriaServerName=" + serverName;
+	path += "&host=" +  document.getElementById("host").value;
+	//alert(path);
+	location.href = path;
+}
+
+function sendToTask(taskName) {
+
+    var path = getRootPath();
+	path += "/jingwei_tasks.htm?";
+	path += "sTaskId=" + taskName;
+	path += "&host=" +  document.getElementById("host").value;
+	//alert(path);
+	location.href = path;
+}
+</script>
+

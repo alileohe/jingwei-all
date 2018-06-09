@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>mysql运维中心——精卫填海</title>
+		<link href="$cssModule.getURI('/jingwei.css')" rel="stylesheet" type="text/css">
+		<link href="$cssModule.getURI('/FC_prettify.css')" rel="stylesheet" type="text/css">
+		<link href="$cssModule.getURI('/FC_style.css')" rel="stylesheet" type="text/css">
+		<link href="$cssModule.getURI('/datePicker.css')" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="$jsModule.getURI('/FusionCharts.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/FC_DD_belatedPNG_0.0.8a-min.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/FC_jquery-1.4.2.min.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/FC_json2.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/FC_prettify.js')"></script>
+		<script type="text/javascript" src="$jsModule.getURI('/datePicker.js')"></script>
+		$control.setTemplate("tbraControl.vm")
+	</head>
+<body class="yui-skin-sam">
+	<div id="header">$control.setTemplate("top.vm")</div>
+	<div id="contain">
+		<div id="mainbg">
+			<div>$screen_placeholder</div>
+		</div>
+	</div>
+	<div id="footer">$control.setTemplate("footer.vm")</div>
+</body>
+</html>

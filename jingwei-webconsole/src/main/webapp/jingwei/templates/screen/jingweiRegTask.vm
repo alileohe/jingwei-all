@@ -1,0 +1,827 @@
+#if($messages)
+<table>
+    <tr>
+        <td style="color:red;">$messages</td>
+    </tr>
+</table>
+#end
+#set($group = $form.jingweiTask.defaultInstance)
+<!-- 提交到后台之前，先要校验批量配置的内容不为空 -->
+<form name="taskForm" action="$jingweiModule.setTarget('jingweiRegTask.vm').render()" method="post"
+      onsubmit="sbForm();">
+    #fieldErrMsg($group.name)
+    #fieldErrMsg($group.applierData)
+    #fieldErrMsg($group.statsPeriod)
+    #fieldErrMsg($group.summaryPeriod)
+    #fieldErrMsg($group.comitLogPeriod)
+    #fieldErrMsg($group.comitLogCount)
+    #fieldErrMsg($group.taskInstanceCount)
+    #fieldErrMsg($group.desc)
+    #fieldErrMsg($group.useLastPosition)
+<input type="hidden" name="action" value="jingweiTaskAction"/>
+<input type="hidden" name="event_submit_do_reg_task" value="1"/>
+<table class="jwTable">
+<tr>
+    <th>Task ID</th>
+    <td colspan="3">
+        <input type="text" name="$group.name.key" value="$group.name.value"/>
+    </td>
+</tr>
+<tr>
+    <th>
+        任务实例数
+    </th>
+    <td>
+        <input type="text" name="$group.taskInstanceCount.key" value="$group.taskInstanceCount.value"/>
+    </td>
+    <th>启动多线程</th>
+    <td><input type="checkbox" name="$group.multiThread.key"
+               onclick="chgControls(this)" #if($group.multiThread.value == "on") checked #end /></td>
+</tr>
+<tr id="thread_control" #if($group.multiThread.value != "on") style="display:none" #end>
+    <th>队列容量</th>
+    <td><input type="text" name="$group.queueCapacity.key" value="$!taskNode.getQueueCapacity()"/></td>
+    <th>最大线程数</th>
+    <td><input type="text" name="$group.maxThreadCount.key" value="$!taskNode.getMaxThreadCount()"/></td>
+</tr>
+<tr id="thread_control_group" #if($group.multiThread.value != "on") style="display:none" #end>
+    <th>&nbsp;Group Setting</th>
+    <td colspan="3">
+        <table id="mutil_group_table">
+            <tr>
+                <td><a href="javascript:void(0)" onclick="addGroupEntryDiv()">添加表映射规则</a></td>
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr>
+    <th>Extractor类型</th>
+    <td>
+        <select id="extractor" name="extractorType" size="1" class="jingweibox" style="width:180px"
+                onchange="chgExtractorType(this)">
+            #foreach($extractor in $!extractorType.entrySet())
+                <option value="$extractor.value" #if($sExtractorType == $extractor.value)
+                        selected #end>$extractor.key</option>
+            #end
+        </select>
+				<span id="admode">
+				<label><input id="autoSwitch_box" type="checkbox" onclick="chgBinlogAutoSwitch(this)"/>自动切换</label>
+				<input type="hidden" id="autoSwitch" name="binlogAutoSwitch" value="false"/>
+				<label><input id="complexity_box" type="checkbox" onclick="chgBinlogMode(this)">高级模式</label>
+				<input type="hidden" id="complexity" name="complexity" value="false"/>
+				</span>
+    </td>
+    <th title="启动时是否使用上次的位点，如果关闭该选项则每次启动都从最新的位点开始可能造成数据丢失，如果关闭该选项的话需要业务自己补偿丢失的数据。">使用上次位点</th>
+    <td title="启动时是否使用上次的位点，如果关闭该选项则每次启动都从最新的位点开始可能造成数据丢失，如果关闭该选项的话需要业务自己补偿丢失的数据。">
+        <input class="default" type="checkbox" name="$group.useLastPosition.key" #if($!taskNode.isUseLastPosition())
+               checked #end onclick="warnMessage(this)"/>
+    </td>
+</tr>
+<tr id="extractor_row" #if($group.extractorType.value == "3") style="display:none" #end>
+    <th valign="top">Extractor数据</th>
+    <td id="extractorData" colspan="3">
+    </td>
+</tr>
+<tr>
+    <th>Applier类型</th>
+    <td colspan="3">
+        <select id="applier" name="applierType" size="1" class="jingweibox" onchange="chgApplierType(this)">
+            #foreach($applier in $!applierType.entrySet())
+                <option value="$applier.value" #if($sApplierType == $applier.value) selected #end>$applier.key</option>
+            #end
+        </select>
+        <label id="enableApplierFilter"><input id="enableApplierFilterController" type="checkbox"
+                                               onclick="chgApplierFilter(this)"/>启动过滤</label>
+        <input type="hidden" id="enableApplierFilterController_value" name="enableApplierGlobalFilter" value="false"/>
+    </td>
+</tr>
+<tr id="appGolbalFilter_div" style="display:none">
+    <th valign="top">Applier过滤</th>
+    <td colspan="3">
+        <table>
+            <tr>
+                <td>库名表达式</td>
+                <td><input type="text" name="appGlobalDbRegex"/></td>
+                <td>表名表达式</td>
+                <td><input type="text" name="appGlobalTabRegex"/></td>
+            </tr>
+            <tr>
+                <td>Action过滤</td>
+                <td colspan="3">
+                    <label><input type="checkbox" id="appGlobalInsert" onclick="chgCheckBoxValue(this)" checked/>INSERT</label>
+                    <input type="hidden" id="appGlobalInsert_value" name="appGlobalInsert" value="true"/>
+                    <label><input type="checkbox" id="appGlobalUpdate" onclick="chgCheckBoxValue(this)" checked/>UPDATE</label>
+                    <input type="hidden" id="appGlobalUpdate_value" name="appGlobalUpdate" value="true"/>
+                    <label><input type="checkbox" id="appGlobalDelete" onclick="chgCheckBoxValue(this)" checked/>DELETE</label>
+                    <input type="hidden" id="appGlobalDelete_value" name="appGlobalDelete" value="true"/>
+                </td>
+            </tr>
+            <tr>
+                <td>过滤模式</td>
+                <td colspan="3">
+                    <label><input type="checkbox" id="appGlobalColumnFilterAdvMode"
+                                  onclick="chgGlobalFilterMode(this)"/>高级模式</label>
+                    <input type="hidden" id="appGlobalColumnFilterAdvMode_value" name="appGlobalColumnFilterAdvMode"/>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <!-- 字段过滤模式 -->
+                    <table id="appGlobalColumnFilterSim">
+                        <tr>
+                            <th colspan="4">字段过滤</th>
+                        </tr>
+                        <tr>
+                            <td>库名过滤条件</td>
+                            <td><input type="text" id="schema_-2"/></td>
+                            <td rowspan="3"><select id="column_filter_condition_-2" style="width:50px">
+                                <option value="include">包含</option>
+                                <option value="exclude">排除</option>
+                            </select>
+
+                                <p></p><input type="button" value="添加" onclick="addColumnFilter(-2)"/>
+
+                                <p></p><input type="button" value="刪除" onclick="delColumnFilter(-2)"/></td>
+                            <td rowspan="3">
+                                <select id="column_filter_-2" multiple style="width:180px;height:120px"></select>
+                                <input type="hidden" name="appGlobalFilterString" id="column_filter_value_-2" value=""/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>逻辑表名</td>
+                            <td><input type="text" id="table_-2"/></td>
+                        </tr>
+                        <tr>
+                            <td>字段名</td>
+                            <td><input type="text" id="column_-2"/></td>
+                        </tr>
+                    </table>
+                    <!-- 高级模式 -->
+                    <table id="appGlobalColumnFilterAdv" style="display:none">
+                        <tr>
+                            <td colspan="4">
+                                <textarea name="appGlobalSourceCode" cols="80" rows="20"></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr id="applier_row" #if($sApplierType == 3) style="display:none" #end>
+    <th valign="top">Applier数据</th>
+    <td id="applierData" colspan="3">
+    </td>
+</tr>
+<tr>
+    <th>统计周期</th>
+    <td><input type="text" name="$group.statsPeriod.key" #if($group.statsPeriod.value != "")
+               value="$group.statsPeriod.value" #else value="$!taskNode.getStatsPeriod()" #end />ms
+    </td>
+    <th>事务统计周期</th>
+    <td><input type="text" name="$group.summaryPeriod.key" #if($group.summaryPeriod.value != "")
+               value="$group.summaryPeriod.value" #else value="$!taskNode.getSummaryPeriod()" #end />ms
+    </td>
+</tr>
+<tr>
+    <th>位点提交周期</th>
+    <td><input type="text" name="$group.comitLogPeriod.key" #if($group.comitLogPeriod.value != "")
+               value="$group.comitLogPeriod.value" #else value="$!taskNode.getComitLogPeriod()" #end />ms
+    </td>
+    <th>位点提交数</th>
+    <td><input type="text" name="$group.comitLogCount.key" #if($group.comitLogCount.value != "")
+               value="$group.comitLogCount.value" #else value="$!taskNode.getComitLogCount()" #end />ms
+    </td>
+</tr>
+<tr>
+    <th>JAVA_OPT</th>
+    <td colspan="3">
+        <textarea cols="60" rows="5" name="$group.javaOpt.key">$group.javaOpt.value</textarea><br>
+        <font color="red">默认：-server -Xms256m -Xmx256m -XX:PermSize=64m -XX:MaxPermSize=64m -Xss1m -XX:+UseParallelGC -XX:ParallelGCThreads=4</font>
+    </td>
+</tr>
+<tr>
+    <th>描述</th>
+    <td colspan="3">
+        <textarea cols="60" rows="5" name="$group.desc.key">$group.desc.value</textarea>
+    </td>
+</tr>
+<tr>
+    <td colspan="4">&nbsp;</td>
+</tr>
+<tr>
+    <th>
+        <font color="red">ZK 服务器</font>
+    </th>
+    <td colspan="3">
+        <select name="host">
+            #foreach($h in $hosts)
+                <option value="$velocityCount" #if($velocityCount == $host) selected #end>$h</option>
+            #end
+        </select>
+    </td>
+</tr>
+<tr>
+    <th>
+        <font color="red">批量创建</font>
+    </th>
+    <td colspan="3">
+        <div>
+            <input type="checkbox" id="use_batch" name="useBatch"/><font color="red">批量创建任务，上面的配置信息，将会作为模板使用</font>
+				
+					<span id="batch_create_div" style="display:none; margin-bottom:10px; margin-left:50px;">
+						<select id="batch-policy-list" name="batchCreateType">
+                            #foreach($batch in $batchCreateTypes)
+                                <option value="$batch">$batch</option>
+                            #end
+                        </select>
+					<span>
+					<div id="batch-config">
+                    </div>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td>&nbsp;</td>
+    <td colspan="3">
+        <input class="yugongBtn" type="submit" value="注册"/>
+        &nbsp;
+        <input class="yugongBtn" type="reset" value="重置"/>
+    </td>
+</tr>
+</table>
+</form>
+<!-- 后面的货些 一定要在表单之外 否则后果自负 -->
+
+<!-- Extractor 类型 -->
+<div id="extractor_meta" style="display:none">
+    <table>
+        <tr>
+            <td>主题</td>
+            <td><input type="text" name="extMetaTopic" value="$!metaExtractorNode.getMetaTopic()"/></td>
+            <td>分组</td>
+            <td><input type="text" name="extMetaGroup" value="$!metaExtractorNode.getMetaGroup()"/></td>
+        </tr>
+        <tr>
+            <td>抓取超时时间</td>
+            <td><input type="text" name="extFetchTimeoutInMills" value="$!metaExtractorNode.getFetchTimeoutInMills()"
+                       onkeypress="event.returnValue=isNumber()"/>ms
+            </td>
+            <td>抓取延时时间</td>
+            <td><input type="text" name="extMaxDelayFetchTimeInMills"
+                       value="$!metaExtractorNode.getMaxDelayFetchTimeInMills()"
+                       onkeypress="event.returnValue=isNumber()"/>ms
+            </td>
+        </tr>
+        <tr>
+            <td>最大消息长度</td>
+            <td><input type="text" name="extMaxMessageSize" value="$!metaExtractorNode.getMaxMessageSize()"
+                       onkeypress="event.returnValue=isNumber()"/></td>
+            <td>抓取消息线程数</td>
+            <td><input type="text" name="extFetchRunnerCount" value="$!metaExtractorNode.getFetchRunnerCount()"
+                       onkeypress="event.returnValue=isNumber()"/></td>
+        </tr>
+        <tr>
+            <td>ZK主机</td>
+            <td><input type="text" name="extMetaZkHosts" value="$!metaExtractorNode.getMetaZkHosts()"/><br/><font
+                    color="red">如果不配置，默认为机器所在环境的ZK</font></td>
+            <td>ZK连接超时时间</td>
+            <td><input type="text" name="extMetaZkConnectionTimeout"
+                       value="$!metaExtractorNode.getMetaZkConnectionTimeout()"/></td>
+        </tr>
+        <tr>
+            <td>ZK会话超时时间</td>
+            <td colspan="3"><input type="text" name="extMetaZkSessionTimeoutMs"
+                                   value="$!metaExtractorNode.getMetaZkSessionTimeoutMs()"/></td>
+        </tr>
+    </table>
+</div>
+<div id="extractor_binlog" style="display:none">
+    <table>
+        <tr>
+            <td>主机</td>
+            <td><input type="text" name="master"/></td>
+            <td>端口</td>
+            <td><input type="text" name="port"/></td>
+        </tr>
+        <tr>
+            <td>用户名</td>
+            <td><input type="text" name="user"/></td>
+            <td>密码</td>
+            <td><input type="text" name="password"/></td>
+        </tr>
+        <tr>
+            <td>库名表达式</td>
+            <td><input type="text" name="dbRegex"/></td>
+            <td>表名表达式</td>
+            <td><input type="text" name="tabRegex"/></td>
+        </tr>
+        <tr>
+            <td>字符集</td>
+            <td colspan="3"><input type="text" name="charset"/></td>
+        </tr>
+    </table>
+</div>
+<div id="extractor_binlog_auto" style="display:none">
+    <table>
+        <tr>
+            <td>组名</td>
+            <td colspan="3"><input type="text" name="binlogGroupName"/></td>
+        </tr>
+        <tr>
+            <td>用户名</td>
+            <td><input type="text" name="user"/></td>
+            <td>密码</td>
+            <td><input type="text" name="password"/></td>
+        </tr>
+        <tr>
+            <td>切换规则</td>
+            <td>
+                <select name="binlogSwitchPolicy" style="width:180px">
+                    #foreach($switcher in $switchPolicyType)
+                        <option>$switcher</option>
+                    #end
+                </select>
+            </td>
+            <td>字符集</td>
+            <td><input type="text" name="charset"/></td>
+        </tr>
+        <tr>
+            <td>库名表达式</td>
+            <td><input type="text" name="dbRegex"/></td>
+            <td>表名表达式</td>
+            <td><input type="text" name="tabRegex"/></td>
+        </tr>
+    </table>
+</div>
+<div id="extractor_binlog_com" style="display:none">
+    <textarea id="extractor_data" name="binData" cols="60" rows="5">$!binData</textarea>
+</div>
+<div id="extractor_binlog_com_auto" style="display:none">
+    <table>
+        <tr>
+            <td>组名</td>
+            <td><input type="text" name="binlogGroupName"/></td>
+			<td></td>
+            <td><input type="text" name="binlogAppName" value="" style="display:none" /></td>
+        </tr>
+        <tr>
+            <td>切换规则</td>
+            <td colspan="3">
+                <select name="binlogSwitchPolicy" style="width:180px">
+                    #foreach($switcher in $switchPolicyType)
+                        <option>$switcher</option>
+                    #end
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <textarea id="extractor_data" name="newBinData" cols="60" rows="5">$!newBinData</textarea>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="extractor_prop_ad" style="display:none">
+    <textarea id="extractor_data_prop" name="content" cols="60" rows="5"></textarea>
+</div>
+
+<!-- Applier 类型 -->
+<div id="applier_database" style="display:none">
+    <input type="hidden" id="tableMapping" name="tableMapping"/>
+    <input type="hidden" id="columnMapping" name="columnMapping"/>
+    <input type="hidden" id="ignoreTableList" name="ignoreTableList"/>
+    <table id="applier_db_table">
+        <tr>
+            <td>Matrix名</td>
+            <td><input type="text" name="matrixName" value="$!dban.getMatrixName()"/></td>
+            <td>规则名</td>
+            <td><input type="text" name="ruleName" value="$!dban.getRuleName()"/></td>
+        </tr>
+        <tr>
+            <td>数据库类型</td>
+            <td colspan="3">
+                <select name="dbType">
+                    #foreach($db in $!dbType.entrySet())
+                        <option value="$db.value" #if($dban.getDbType().getType() == $db.value)
+                                selected #end>$db.key</option>
+                    #end
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>覆盖数据</td>
+            <td><input type="checkbox" id="replace" #if($dban.isReplace()) checked #end
+                       onclick="chgCheckBoxValue(this)"/><input type="hidden" id="replace_value" name="replace"
+                                                                value="$!dban.isReplace()"/></td>
+            <td title="当错误发生时，继续执行后续操作。">允许错误</td>
+            <td><input type="checkbox" id="failContinue" #if($dban.isFailContinue()) checked #end
+                       onclick="chgCheckBoxValue(this)"/><input type="hidden" id="failContinue_value"
+                                                                name="failContinue" value="$dban.isFailContinue()"/>
+            </td>
+        </tr>
+        <tr>
+            <td>Schema名</td>
+            <td colspan="3"><input type="text" name="db" value="$!schemas"/> (如有多个，用半角逗号","分隔)</td>
+        </tr>
+        #foreach($entry in $dban.getLogicTableNames().entrySet())
+            <tr id="tr_$velocityCount">
+                <td colspan="4">
+                    <table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'"
+                           onmouseout="this.style.border='1px solid #fff'">
+                        <tr>
+                            <th colspan="3">表映射</th>
+                            <th style="text-align:right"><a href="javascript:void(0)"
+                                                            onclick="delTableMappingDiv($velocityCount)">X</a></th>
+                        </tr>
+                        <tr>
+                            <td>源表名</td>
+                            <td><input type="text" id="orgTable_$velocityCount" value="$!entry.getKey()"/></td>
+                            <td>目标表名</td>
+                            <td><input type="text" id="desTable_$velocityCount" value="$!entry.getValue()"/></td>
+                        </tr>
+                        <tr>
+                            <td>源列名</td>
+                            <td><input type="text" id="orgColumn_$velocityCount"/></td>
+                            <td><input type="button" value="添加" onclick="addColumnMapping($velocityCount)"/></td>
+                            <td rowspan="2">
+                                <select multiple style="width:170px" id="columnMapping_$velocityCount">
+                                    #foreach($tMapping in $dban.getColumnMapping().get($entry.getKey()).entrySet())
+                                        <option value="$entry.getKey().$tMapping.getKey() -> $tMapping.getValue()">$entry.getKey()
+                                            .$tMapping.getKey() -> $tMapping.getValue()</option>
+                                    #end
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>目标列名</td>
+                            <td><input type="text" id="desColumn_$velocityCount"/></td>
+                            <td><input type="button" value="删除" onclick="delColumnMapping($velocityCount)"/></td>
+                        </tr>
+                        <tr>
+                            <td>列过滤</td>
+                            <td>
+                                <input type="text" id="ignoreColumn_$velocityCount"/>
+                                <select id="filterFlag_$velocityCount" style="width:60px">
+                                    <option value="true">包含</option>
+                                    <option value="false">排除</option>
+                                </select>
+                            </td>
+                            <td><p><input type="button" value="添加" onclick="addIgnoreTable($velocityCount)"/></p>
+
+                                <p><input type="button" value="删除" onclick="delIgnoreTable($velocityCount)"/></p></td>
+                            <td>
+                                <select multiple style="width:170px" id="ignoreTableList_$velocityCount">
+                                    #foreach($ignore in $dban.getIgnoreColumns().get($entry.getKey()))
+                                        <option value="$entry.getKey().$ignore">$entry.getKey().$ignore</option>
+                                    #end
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        #end
+        <tr>
+            <td colspan="3">&nbsp;</td>
+            <td><a href="javascript:void(0)" onclick="addTableMappingDiv()">添加表映射</a></td>
+        </tr>
+    </table>
+</div>
+<div id="applier_meta" style="display:none">
+    <!-- <textarea id="applier_data" name="$group.applierData.key" cols="60" rows="8">$group.applierData.value</textarea> -->
+    <table>
+        <tr>
+            <td>主题</td>
+            <td><input type="text" name="appMetaTopic" value="$!metaApplierNode.getMetaTopic()"/></td>
+            <td>分库键</td>
+            <td><input type="text" name="appShardColumn" value="$!metaApplierNode.getShardColumn()"/></td>
+        </tr>
+        <tr>
+            <td>是否拆分事务</td>
+            <td><input type="checkbox" id="appSplitTxEvent"
+                       onclick="chgCheckBoxValue(this)" #if($metaApplierNode.isSplitTxEvent()) checked #end /><input
+                    type="hidden" id="appSplitTxEvent_value" name="appSplitTxEvent"
+                    value="$!metaApplierNode.isSplitTxEvent()"/></td>
+            <td>最大事件长度</td>
+            <td><input type="text" name="appMaxEventSize" value="$!metaApplierNode.getMaxEventSize()"/></td>
+        </tr>
+        <tr>
+            <td>发送超时时间</td>
+            <td><input type="text" name="appSendTimeOut" value="$!metaApplierNode.getSendTimeOut()"/></td>
+            <td>压缩类型</td>
+            <td>
+                <select name="appCompressionType">
+                    #foreach($cType in $compressionType)
+                        <option value="$cType">$cType</option>
+                    #end
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>Action过滤</td>
+            <td colspan="3">
+                <label><input type="checkbox" id="appInsert" onclick="chgCheckBoxValue(this)" checked/>INSERT</label>
+                <input type="hidden" id="appInsert_value" name="appInsert" value="true"/>
+                <label><input type="checkbox" id="appUpdate" onclick="chgCheckBoxValue(this)" checked/>UPDATE</label>
+                <input type="hidden" id="appUpdate_value" name="appUpdate" value="true"/>
+                <label><input type="checkbox" id="appDelete" onclick="chgCheckBoxValue(this)" checked/>DELETE</label>
+                <input type="hidden" id="appDelete_value" name="appDelete" value="true"/>
+            </td>
+        </tr>
+        <tr>
+            <td>启动字段过滤</td>
+            <td colspan="3"><input id="meta_filter_radio_-1" type="checkbox" onclick="chgMetaFilter(this)"/><input
+                    type="hidden" id="meta_filter_radio_-1_value" name="appEnableColumnFilter"/></td>
+        </tr>
+        <tr id="meta_filter_radio_-1_div" style="display:none">
+            <td colspan="4">
+                <table>
+                    <tr>
+                        <td>库名过滤条件</td>
+                        <td><input id="schema_-1" type="text"/></td>
+                        <td rowspan="3"><select id="column_filter_condition_-1" style="width:50px">
+                            <option value="include">包含</option>
+                            <option value="exclude">排除</option>
+                        </select>
+
+                            <p></p><input type="button" value="添加" onclick="addColumnFilter(-1)"/>
+
+                            <p></p><input type="button" value="刪除" onclick="delColumnFilter(-1)"/></td>
+                        <td rowspan="3">
+                            <select id="column_filter_-1" multiple style="width:180px;height:120px"></select>
+                            <input type="hidden" name="appColumnFilterString" id="column_filter_value_-1" value=""/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>逻辑表名</td>
+                        <td><input id="table_-1" type="text"/></td>
+                    </tr>
+                    <tr>
+                        <td>字段名</td>
+                        <td><input id="column_-1" type="text"/></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="multi_applier_meta" style="display:none">
+    <!-- <textarea id="applier_data" name="$group.applierData.key" cols="60" rows="8">$group.applierData.value</textarea> -->
+    <table id="multi_meta_table">
+        <tr id="multiFilterTr_0">
+            <td colspan="4">
+                <table style="border:1px solid #fff" onmouseover="this.style.border='1px solid #4f6b72'"
+                       onmouseout="this.style.border='1px solid #fff'">
+                    <tr>
+                        <th colspan="4">META Applier</th>
+                    </tr>
+                    <tr>
+                        <td>主题</td>
+                        <td><input type="text" name="multiMetaTopic" value="$!multiMetaApplierNode.getMetaTopic()"/>
+                        </td>
+                        <td>分库键</td>
+                        <td><input type="text" name="multiShardColumn" value="$!multiMetaApplierNode.getShardColumn()"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>库名表达式</td>
+                        <td><input type="text" name="multiSrcSchemaReg"/></td>
+                        <td>表名表达式</td>
+                        <td><input type="text" name="multiSrcTableReg"/></td>
+                    </tr>
+                    <tr>
+                        <td>发送超时时间</td>
+                        <td><input type="text" name="multiSendTimeOut" value="$!multiMetaApplierNode.getSendTimeOut()"/>
+                        </td>
+
+                        <td>压缩类型</td>
+                        <td>
+                            <select name="multiCompressionType">
+                                #foreach($cType in $compressionType)
+                                    <option value="$cType">$cType</option>
+                                #end
+                            </select>
+                        </td>
+                        <!---->
+                    </tr>
+                    <tr>
+                        <td>是否拆分事务</td>
+                        <td><input type="checkbox" id="multiSplitTxEvent_0"
+                                   onclick="chgCheckBoxValue(this)" #if($multiMetaApplierNode.isSplitTxEvent())
+                                   checked #end /><input type="hidden" id="multiSplitTxEvent_0_value"
+                                                         name="multiSplitTxEvent"
+                                                         value="$!multiMetaApplierNode.isSplitTxEvent()"/></td>
+                        <td>最大事件长度</td>
+                        <td><input type="text" name="multiMaxEventSize"
+                                   value="$!multiMetaApplierNode.getMaxEventSize()"/></td>
+                    </tr>
+                    <tr>
+                        <td>Action过滤</td>
+                        <td colspan="3">
+                            <label><input type="checkbox" id="multiInsert_0" onclick="chgCheckBoxValue(this)" checked/>INSERT</label>
+                            <input type="hidden" id="multiInsert_0_value" name="multiInsert" value="true"/>
+                            <label><input type="checkbox" id="multiUpdate_0" onclick="chgCheckBoxValue(this)" checked/>UPDATE</label>
+                            <input type="hidden" id="multiUpdate_0_value" name="multiUpdate" value="true"/>
+                            <label><input type="checkbox" id="multiDelete_0" onclick="chgCheckBoxValue(this)" checked/>DELETE</label>
+                            <input type="hidden" id="multiDelete_0_value" name="multiDelete" value="true"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>启动字段过滤</td>
+                        <td colspan="3">
+                            <input id="multiMetaFilterRadio_0" type="checkbox" onclick="chgMultiMetaFilter(this)"/>
+                            <input type="hidden" id="multiMetaFilterRadio_0_value" name="multiEnableColumnFilter"
+                                   value="false"/>
+							<span id="multiMetaFilterRadio_0_mode_div" style="display:none">
+								[高级模式
+								<input id="multiMetaFilterRadio_0_mode" type="checkbox"
+                                       onclick="chgMultiMetaFilterMode(this)"/>
+								]
+								<input type="hidden" id="multiMetaFilterRadio_0_mode_value"
+                                       name="multiColumnFilterAdvEnabled" value="false"/>
+							</span>
+                        </td>
+                    </tr>
+                    <tr id="multiMetaFilterRadio_0_mode_sim" style="display:none">
+                        <td colspan="4">
+                            <table>
+                                <tr>
+                                    <th colspan="4">字段过滤</th>
+                                </tr>
+                                <tr>
+                                    <td>库名过滤条件</td>
+                                    <td><input type="text" id="schema_0"/></td>
+                                    <td rowspan="3"><select id="column_filter_condition_0" style="width:50px">
+                                        <option value="include">包含</option>
+                                        <option value="exclude">排除</option>
+                                    </select>
+
+                                        <p></p><input type="button" value="添加" onclick="addColumnFilter(0)"/>
+
+                                        <p></p><input type="button" value="刪除" onclick="delColumnFilter(0)"/></td>
+                                    <td rowspan="3">
+                                        <select id="column_filter_0" multiple style="width:180px;height:120px"></select>
+                                        <input type="hidden" name="multiColumnFilterString" id="column_filter_value_0"
+                                               value=""/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>逻辑表名</td>
+                                    <td><input type="text" id="table_0"/></td>
+                                </tr>
+                                <tr>
+                                    <td>字段名</td>
+                                    <td><input type="text" id="column_0"/></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr id="multiMetaFilterRadio_0_mode_adv" style="display:none">
+                        <td colspan="4">
+                            <textarea name="multiColumnFilterAdv" cols="60" rows="12"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;</td>
+            <td align="right"><a href="javascript:void(0)" onclick="addMultiMeta()">添加META_APPLIER</a></td>
+        </tr>
+    </table>
+</div>
+
+<div id="applier_andorCommand" style="display:none">
+
+    <input type="hidden" id="andorTableMapping" name="andorTableMapping"/>
+
+    <table id="applier_andorCommand_table">
+        <tr>
+            <td>andor appName</td>
+            <td><input type="text" name="appName" value="$!andorCommandApplierNode.getAppName()"/></td>
+        </tr>
+        <tr>
+            <td colspan="3">&nbsp;</td>
+            <td><a href="javascript:void(0)" onclick="addAndorTableMappingDiv()">添加过滤表</a></td>
+        </tr>
+
+    </table>
+</div>
+
+
+<div id="batch_default" style="display:none">
+    <table>
+        <tr>
+            <td>任务名前缀</td>
+            <td><input type="text" id="batch_task_prefix" name="batchTaskPrefix"/></td>
+            <td>起始序号</td>
+            <td><input type="text" id="batch_start_seq" name="batchStartSeq" maxlength="5" onkeyup="isNumber(this)"/>
+            </td>
+        </tr>
+        <tr>
+            <td>步长</td>
+            <td><input type="text" id="batch_step_seq" name="batchStep" maxlength="5" onkeyup="isNumber(this)"/></td>
+        </tr>
+        <tr>
+            <td>TDDL GROUP列表 <font color="red">逗号分隔</font></td>
+            <td colspan="3">
+                <textarea cols="60" rows="5" id="batch_groups" name="batchTddlGroups" value=""></textarea>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="compTypeOptions" style="display:none">
+    <select name="multiCompressionType">
+        #foreach($cType in $compressionType)
+            <option value="$cType">$cType</option>
+        #end
+    </select>
+</div>
+<input type="hidden" id="mutil_group_number" value=""/>
+<input type="hidden" id="number" value="$!dban.getLogicTableNames().size()"/>
+<input type="hidden" id="multi_meta_number" value=""/>
+<input type="hidden" id="andorNumber" value="$!andorCommandApplierNode.getCascadeIndexNameMap().size()"/>
+
+<script language="javascript">
+    chgApplierType(document.getElementById("applier"));
+    chgExtractorType(document.getElementById("extractor"));
+</script>
+<script language="javascript">
+    $("#use_batch").click(function () {
+        var useBatch = $("#use_batch").attr("checked");
+        if (useBatch == true) {
+            var extractor = $("#extractor").find("option:selected").text();
+            var auto_switch = $("#autoSwitch_box").attr("checked");
+
+            // 必须是binlog extractor 的高级模式才行
+            if (extractor != "BINLOG_EXTRACTOR") {
+                alert("必须是binlog extractor 的自动切换模式才行!");
+                return false;
+            }
+
+            if (auto_switch != true) {
+                alert("必须是binlog extractor 的自动切换模式才行!");
+                return false;
+            }
+            $("#batch_create_div").show();
+        } else {
+            $("#batch_create_div").hide();
+        }
+    });
+
+    $(document).ready(function () {
+        // alert($("#batch_default").html());
+        $("#batch-config").append($("#batch_default").html());
+    });
+
+    // 前缀不能为空
+    $("#batch_task_prefix").keyup(function () {
+        alert();
+        //if (trim(this.val()).length > 0) {
+        //	alert();
+        //}
+    });
+
+    // 校验批量配置的参数不能为空
+    function checkBatch() {
+        var useBatch = $("#use_batch").attr("checked");
+        // 选中了batch才继续校验
+        if (useBatch == true) {
+            var selectedItem = $("#batch-policy-list").find("option:selected").text();
+
+            //alert(selectedItem);
+            // 校验根据group name创建不同任务的配置项
+            if (selectedItem == "DEFAULT_POLICY") {
+                var extractor = $("#extractor").find("option:selected").text();
+                var auto_switch = $("#autoSwitch_box").attr("checked");
+
+                // 必须是binlog extractor 的高级模式才行
+                if (extractor != BINLOG_EXTRACTOR) {
+                    alert("必须是binlog extractor 的自动切换模式才行!");
+                    return false;
+                }
+
+                if (auto_switch != true) {
+                    alert("必须是binlog extractor 的自动切换模式才行!");
+                    return false;
+                }
+
+
+                if (jQuery.trim($("#batch_task_prefix").val()).length == 0) {
+                    alert("请填写批量处理前缀");
+                    return false;
+                }
+
+                if (jQuery.trim($("#batch_groups").val()).length == 0) {
+                    alert("请填写TDDL GROUP!");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+</script>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE access PUBLIC "-//ALIBABA//DTD Page Authorization Configuration V1.0//EN"
+"../access.dtd">
+	<access realm="app">
+		<match target="/">
+			<grant user="*" allow="*"/>
+			<grant user="anonymous" allow="*"/>
+		</match>
+	</access>

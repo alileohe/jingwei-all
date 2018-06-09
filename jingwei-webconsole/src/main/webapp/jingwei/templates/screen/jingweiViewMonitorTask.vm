@@ -1,0 +1,255 @@
+<form>
+	<table class="jwTable">
+		<tr>
+			<th>ZK服务器</th>
+			<td>$hostName</td>
+		</tr>
+		<tr>
+			<th>最小实例数</th>
+			<td>$monitorTaskNode.taskInstanceCount</td>
+			<th>任务名 or group名 </th>
+			<td >$monitorTaskNode.taskName</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描统计数据周期</th>
+			<td width="25%">$monitorTaskNode.scanStatsPeriod &nbsp;ms</td>
+			<th width="10%">冻结周期</th>
+			<td width="25%">$monitorTaskNode.thresholdFrozenPeriod &nbsp;ms</td>
+			<th width="15%">告警开关</th>
+			<td>
+				#if($monitorTaskNode.thresholdToggle)
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描alarm数据周期</th>
+			<td>$monitorTaskNode.scanAlarmPeriod &nbsp;ms</td>
+			<th width="15%">冻结周期</th>
+			<td>$monitorTaskNode.alarmFrozenPeriod &nbsp;ms</td>
+			<th >告警开关</th>
+			<td>
+				#if($monitorTaskNode.alarmToggle)
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">扫描心跳数据周期</th>
+			<td>$monitorTaskNode.scanHeartBeatPeriod &nbsp;ms</td>
+			<th width="15%">冻结周期</th>
+			<td>$monitorTaskNode.heartBeatFrozenPeriod &nbsp;ms</td>
+			<th>告警开关</th>
+			<td>
+				#if($monitorTaskNode.heartBeatToggle)
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">位点多长时间没有变化</th>
+			<td>$monitorTaskNode.positionAlarmThreshold &nbsp;ms</td>
+			<th width="15%">冻结周期</th>
+			<td>$monitorTaskNode.positionFrozenPeriod &nbsp;ms</td>
+			<th>告警开关</th>
+			<td>
+				#if($monitorTaskNode.positionToggle)
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">位点落后多长时间阀值</th>
+			<td>$monitorTaskNode.positionDelayAlarmThreshold &nbsp;ms</td>
+		</tr>
+		<tr>
+			<th width="20%">插入TPS上限</th>
+			<td>$monitorTaskNode.tpsUpperInsertThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsUpperInsertThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		
+		<tr>
+			<th width="20%">插入TPS下限</th>
+			<td>$monitorTaskNode.tpsLowerInsertThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsLowerInsertThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">更新TPS上限</th>
+			<td>$monitorTaskNode.tpsUpperUpdateThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsUpperUpdateThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">更新TPS下限</th>
+			<td>$monitorTaskNode.tpsLowerUpdateThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsLowerUpdateThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">删除TPS上限</th>
+			<td>$monitorTaskNode.tpsUpperDeleteThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsUpperDeleteThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="20%">删除TPS下限</th>
+			<td>$monitorTaskNode.tpsLowerDeleteThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleTpsLowerDeleteThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">插入平均延迟告警阈值</th>
+			<td>$monitorTaskNode.insertDelayThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleInsertDelayThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">修改平均延迟告警阈值</th>
+			<td>$monitorTaskNode.updateDelayThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleUpdateDelayThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">删除平均延迟告警阈值</th>
+			<td>$monitorTaskNode.deleteDelayThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleDeleteDelayThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">extractor平均延迟告警阈值</th>
+			<td>$monitorTaskNode.extractorDelayThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleExtractorDelayThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">插入异常阈值</th>
+			<td>$monitorTaskNode.insertExceptionThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleInsertExceptionThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">修改异常阈值</th>
+			<td>$monitorTaskNode.updateExceptionThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleUpdateExceptionThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">删除异常阈值</th>
+			<td>$monitorTaskNode.deleteExceptionThreshold</td>
+			<th width="15%">是否启用</th>
+			<td>
+				#if($monitorTaskNode.toggleDeleteExceptionThreshold)
+					启用
+				#else
+					禁用
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">短信通知人</th>
+			<td >$monitorTaskNode.smsAlertUsers</td>
+			<th>告警开关</th>
+			<td>
+				#if($monitorTaskNode.isSmToggle())
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+		<tr>
+			<th width="25%">旺旺通知人</th>
+			<td >$monitorTaskNode.wwAlertUsers</td>
+			<th>告警开关</th>
+			<td>
+				#if($monitorTaskNode.isWwToggle())
+					打开
+				#else
+					关闭
+				#end
+			</td>
+		</tr>
+	</table>
+</form>

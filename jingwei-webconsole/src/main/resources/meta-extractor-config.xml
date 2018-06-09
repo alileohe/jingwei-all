@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="extractorConfig"  class="com.taobao.jingwei.webconsole.model.config.extractor.MetaExtractorConfig">
+		<property name="metaTopic" value="TOPIC"></property>
+		<property name="metaGroup" value="GROUP"></property>
+		<property name="fetchTimeoutInMills" value="2000"></property>
+		<property name="maxDelayFetchTimeInMills" value="2000"></property>
+		<property name="maxMessageSize" value="4096"></property>
+		<property name="fetchRunnerCount" value="2"></property>
+		<property name="metaZkHosts" value=""></property>
+		<property name="metaZkConnectionTimeout" value="15000"></property>
+		<property name="metaZkSessionTimeoutMs" value="15000"></property>
+	</bean>
+</beans>

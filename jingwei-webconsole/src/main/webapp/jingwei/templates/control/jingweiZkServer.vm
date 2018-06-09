@@ -1,0 +1,53 @@
+<select name="host" id="host">
+	#foreach($h in $hosts)
+		<option value="$velocityCount" #if($velocityCount == $host) selected #end>$h</option>
+	#end
+</select>
+<input type="hidden" id="root_path" value="$jingweiModule.render()" ></input>
+<input type="hidden" id="pageCount" value="$pageCount" ></input>
+<input type="hidden" id="currentPage" value="$currentPage" ></input>
+
+<script language="javascript">
+// http://ops.taobao.jm.net/jingwei/api/JingweiGateWay.do?host=XXX
+function getApiRootPath() {
+    var root_path = document.getElementById("root_path").value;
+	var host = document.getElementById("host").value;
+
+    root_path += "/api/JingweiGateWay.do?";
+    root_path += "host=" + host;
+	
+	return root_path;
+}
+
+// http://ops.taobao.jm.net/jingwei
+function getRootPath() {
+	 var root_path = document.getElementById("root_path").value;
+	 return root_path;
+}
+
+// 获取含有分页条件的url
+function getPageConditionPath(cur) {
+    var root_path = document.getElementById("root_path").value;
+	var host = document.getElementById("host").value;
+	
+	root_path += "/" + cur + "?"
+	root_path += "host=" + host;
+	
+	var pageSizeInput = document.getElementById("pageSizeInput").value;
+	var currentPage = document.getElementById("currentPage").value;
+	
+	root_path +="&pageSize=" + pageSizeInput;
+	root_path +="&page=" + currentPage;
+	
+	return root_path;
+}
+
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+</script>

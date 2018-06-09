@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="gb2312"?>  
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="batchFactory" 
+		class="com.taobao.jingwei.webconsole.model.config.DefaultBatchFactory">
+		<property name="taskNamePrefix" value="DEFAULT_PREFIX"></property>
+		<property name="suffixPolicy" ref="suffixPolicy"></property>
+		<property name="groupNames" value="group1,group2,"></property>
+
+	</bean>
+	<bean id="suffixPolicy" 
+		class="com.taobao.jingwei.webconsole.model.config.SequenceSuffixPolicy">
+		<property name="startIndex" value="1"></property>
+		<property name="step" value="1"></property>
+		<property name="count" value="2"></property>
+	</bean>
+</beans>

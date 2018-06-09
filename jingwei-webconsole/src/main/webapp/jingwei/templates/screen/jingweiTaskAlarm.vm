@@ -1,0 +1,41 @@
+#if($alarms.isEmpty())
+<table class="jwTable">
+    <tr>
+        <td align="center"><b>无警告信息！</b></td>
+    </tr>
+</table>
+#else
+<table class="jwTable">
+    <tr>
+        <th width="10%">Task ID</th>
+        <th>$taskId</th>
+    </tr>
+</table>
+<br/>
+<table class="jwTable">
+    #foreach($alarm in $alarms.entrySet())
+        #set($entry = $alarm.getValue())
+        <tr>
+            <th>主机名</th>
+            <th>$alarm.getKey()&nbsp;</th>
+        </tr>
+        <tr>
+            <td>时间</td>
+            <td>$entry.getStrTimestamp()</td>
+        </tr>
+        <tr>
+            <td>信息</td>
+            <td>$entry.getMessage()&nbsp;</td>
+        </tr>
+        <tr>
+            <td>Trace</td>
+            <td>$entry.getStackTrace()&nbsp;</td>
+        </tr>
+    #end
+</table>
+#end
+<table class="jwTable">
+    <tr>
+        <td align="center"><a href="#" onclick="closeWindow();">关闭</a></td>
+    </tr>
+</table>

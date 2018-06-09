@@ -1,0 +1,753 @@
+<script>
+	function setTab(name, cursel, n){
+		for(i = 1; i <= n; i++){
+			var menu=document.getElementById(name + i);
+			var con=document.getElementById("con_" + name + "_" + i);
+			menu.className = i==cursel ? "hover" : "";
+			con.style.display=i==cursel ? "block" : "none";
+			//alert($('#selected_tab').val());
+			if (cursel == 1){
+				document.getElementById("selected_tab").value = 1;
+				document.getElementById("group_view").style.display="none";
+				document.getElementById("group_view").style.display="none";
+				document.getElementById("serverView").style.display="block";
+			}
+			else
+			if (cursel == 2){
+				document.getElementById("selected_tab").value = 2;
+				document.getElementById("group_view").style.display="block";
+				document.getElementById("serverView").style.display="none";
+			}
+		}
+	}
+</script>
+<!--
+<div id="Tab">
+    <input type="hidden" id="selected_tab" value="1"></input>
+    <div class="Menubox">
+        <ul>
+            <li id="menu1" onclick="setTab('menu',1,3)" #if(!$selected_tab || 1 == $!selected_tab  ) class="hover" #end>Server View</li>
+            <li id="menu2" onclick="setTab('menu',2,3)" #if(2 == $!selected_tab  ) class="hover" #end>Group View</li>
+        </ul>
+    </div>
+    <div class="Contentbox">
+        <div id="con_menu_1" class="hover">
+            <a href="#"></a>
+        </div>
+        <div id="con_menu_2" style="display:none">
+            <a href="#"></a>
+            </li>
+        </div>
+        <div id="con_menu_3" style="display:none">
+            <a href="#"></a>
+            </li>
+        </div>
+    </div>
+</div>
+-->
+<div id="serverView" >
+
+	<p>
+	<strong>Server搜索</strong>
+	</p>
+	<input type="hidden" name="criteria" value="$!criteria_data" />
+	<form id="searchForm" name="searchForm" action="$jingweiModule.setTarget('jingwei_servers.vm').render()" method="post">
+		<table class="jwTable">
+			<tr>
+				<th width="20%">ZK服务器</th>
+				<td>
+					$control.setTemplate("jingweiZkServer.vm")
+				</td>
+				<th >过滤Group</th>
+				<td>
+					<select id="group_criteria" name="groupCriteria">
+						<option value=""></option>
+						#foreach($group in $!groupCriterias)
+							<option value="$group" #if($group == $!criteria.groupType) selected #end>$group</option>
+						#end
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>Server ID</th>
+				<td>
+					<input type="text" id="criteriaServerName" name="criteriaServerName" value="$!criteria.serverName"/>
+				</td>
+								<th width="20%">TASK ID</th>
+				<td>
+					<input type="text" id="criteriaTaskName" name="criteriaTaskName" value="$!criteria.taskName" />
+				</td>
+
+			</tr>
+			<tr>
+				<td colspan="2">&nbsp;</td>
+				<td>
+					<span style="margin-right:20px;">
+						<input type="button" class="yugongBtn" value="清空" onclick="clearSearchForm()" />
+					</span>
+					<input type="submit" class="yugongBtn" value="搜索" onclick='search_server("$jingweiModule.setTarget('jingweiServers.vm').render()");' />
+				</td>
+			</tr>
+		</table>
+	</form>
+	<p>
+	<strong>Server列表</strong>
+	</p>
+
+	<table class="jwTable">
+		<tr align="center">
+			<th width="15%">Server ID</th>
+			<th >任务列表</th>
+			<th width="9%">运行状态</th>
+			<th width="10%">操作</th>
+		</tr>
+		#foreach($s in $servers)
+			<tr>
+				<td>
+					<div style="float:left;text-align:center; width:100px; color:rgb(50,54,123);">$velocityCount</div>
+					<div style="float: left; padding-left: 0px; padding-top: 5px;">$s.serverName</div>
+                    <div style="float: left; padding-left: 0px; padding-top: 5px;">执行器总数:$s.executorCount</div> 
+					<div style="float: left; padding-left: 0px; padding-top: 5px;"><a href="#" onclick='getServerOcuppiedExecutor("$jingweiModule.setTarget('jingweiTaskOcuppiedExecutor.vm').addQueryData('serverName',$s.serverName).render()", this); return false;' class="yugongLink">查看执行器使用数</a></div>
+					#if($s.version != "")
+						<div style="float: left; padding-left: 0px; padding-top: 5px;">版本:$s.version</div>
+						<div style="float: left; padding-left: 0px; padding-top: 0px;">启动用户:$s.userName</div>
+					#end
+				</td>
+				<td width="60%">
+					<div style="width:490px;">
+						#foreach($t in $s.jingweiAssembledServerTasks)
+							<div style="float:left;padding-top:3px; padding-bottom:3px;">
+								<span style="float:left; padding-left:0px;width:150px;">
+									<a href="$jingweiModule.setTarget('jingweiTaskDetail.vm').render()?taskId=$t.taskName&host=$!host" target="_blank" #if("$t.status" == "RUNNING") style="color:green" #elseif("$t.status" == "STANDBY") style="color:slateblue" #else style="color:red"  #end>$t.taskName</a>
+								</span>
+								<span style="float:left; padding-left:5px;width:50px;">$t.taskType</span>
+								<span style="float:left; padding-left:5px;width:90px;">
+									$t.operate
+									#if ($t.pluginTaskWorkState=="WORK_DELETE_STATE")
+									已删除
+									#elseif ($t.pluginTaskWorkState=="WORK_UPDATE_STATE")
+											已更新
+									#end
+								</span>
+								<span style="float:left; padding-left:5px;width:50px;">$t.status</span>
+								<span style="float:right; padding-right:5px;width:130px;">
+									#if($t.operate == "START" ||$t.pluginTaskWorkState=="WORK_DELETE_STATE")
+										<span class="disabledLink">启动</span>
+										|
+										#if ($t.operate == "START")
+											<a href="#" onclick='stopTask("$host", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName',$s.getServerName()).addQueryData('taskName',$t.taskName).addQueryData('host',$host).addQueryData('event_submit_do_stop_task',1).render()");' class="yugongLink">
+												停止
+											</a>
+										#else
+											<span class="disabledLink">
+												停止
+											</span>
+										#end
+									#else
+										<a href="#" onclick='startTask("$host", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName',$s.getServerName()).addQueryData('taskName',$t.taskName).addQueryData('host',$host).addQueryData('event_submit_do_start_task',1).render()")' class="yugongLink">
+											启动
+										</a>
+										|
+										<span class="disabledLink">
+											停止
+										</span>
+									#end
+									|
+									#if ($t.operate =="STOP" )
+										#if ($t.taskType == "BUILDIN" || $t.taskType == "CUSTOMER" && $t.pluginTaskWorkState=="WORK_DELETE_STATE")
+											<a href="#" onclick='removeServerTask("$host", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName',$s.getServerName()).addQueryData('taskName',$t.taskName).addQueryData('host',$host).addQueryData('event_submit_do_delete_task',1).render()")' class="yugongLink">
+												删除
+											</a>
+										#else
+											<span class="disabledLink">
+												删除
+											</span>
+										#end
+									#else
+										<span class="disabledLink">
+											删除
+										</span>
+									#end
+									|
+									#if ($t.operate =="STOP" )
+										<a href="$jingweiModule.setTarget('jingweiUpdateTask.vm').render()?taskId=$!t.getTaskName()&host=$!host" target="_blank">
+											修改
+										</a>
+									#else
+										<span class="disabledLink">
+											修改
+										</span>
+									#end
+									|
+									<a href="$jingweiModule.setTarget('jingweiTaskStat.vm').render()?taskId=$!t.getTaskName()&hostName=$s.getServerName()&host=$!host" >统计</a>
+								</span>
+							</div>
+						#end
+						#foreach($g in $s.getGroups().keySet())
+							<div style="float:left;padding-top:5px;  border-top: 1px solid #DEDEDE; ">
+								<span  style="float:left; padding-left:0px;padding-top:5px; width:150px; vertical-align: middle;">
+									<a href="$jingweiModule.setTarget('jingweiGroups.vm').render()?groupNameCriteria=$g&host=$!host"  style="color: mediumvioletred;" >
+										$g
+									</a>
+								</span>
+								<span  style="float:left; padding-left:5px; width:280px";" >
+									#foreach($taskName in $s.getGroups().get($g))
+										<div style="clear:both; padding-bottom:5px; padding-top:5px;" >
+											<a style="color:green;" href="$jingweiModule.setTarget('jingweiTaskDetail.vm').render()?taskId=$taskName&host=$!host" target="_blank" >$taskName</a>
+										</div>
+									#end
+								</span>
+								<span  style="float:right;padding-right:0px;width:40px;" >
+									<a class="yugongLink" href="#"  title="删除Group">
+										<img border="0" onclick='removeServerGroup("$s.serverName", "$g", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action', 'JingweiServerAction').addQueryData('host',$host).addQueryData('serverName', $s.serverName).addQueryData('groupName',$g).addQueryData('event_submit_do_get_running_task_at_server', 1).render()", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action', 'JingweiServerAction').addQueryData('host',$host).render()");' src="$imageModule.getURI('delete.gif')" alt="删除Group" />
+									</a>
+								</span>
+							</div>
+						#end
+					</div>
+				</td>
+				<td>
+					$s.status
+				</td>
+				<td>
+					<span>
+						<a class="yugongLink" href="#"  onclick='getCandidateGroups("$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action', 'JingweiServerAction').addQueryData('serverName', $s.serverName).addQueryData('host',$host).addQueryData('event_submit_do_get_candidate_groups', 1).render()", "$s.serverName", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName', $s.serverName).addQueryData('host',$host).addQueryData('event_submit_do_add_groups', 1).render()");' title="添加Group" >
+							<img border="0" src="$imageModule.getURI('add.png')" alt="添加Group" />
+						</a>
+						<span>
+							<a class="yugongLink" href="#" onclick='getServerTasks("$jingweiModule.setTarget('jingweiDeployTask.vm').addQueryData('serverName',$s.serverName).addQueryData('host',$host).render()", "$s.serverName", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName',$s.serverName).addQueryData('host',$host).render()");' title="添加任务">
+								<img border="0" src="$imageModule.getURI('add.gif')" alt="添加任务" />
+							</a>
+						</span>
+						<span>
+							<a href="#" onclick='removeServerInstance("$s.canDelete", "$jingweiModule.setTarget('jingweiServers.vm').addQueryData('action','JingweiServerAction').addQueryData('serverName',$s.serverName).addQueryData('host',$host).addQueryData('event_submit_do_delete_server',1).render()");'  class="yugongLink" title="删除server">
+								<img id="deleteMonitorHrefImg" border="0" src="$imageModule.getURI('delete.png')" alt="删除"  />
+							</a>
+						</span>
+					</span>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+<div id='pop_div' class="pop_box">
+	<input type="hidden" id="targets" />
+	<input type="hidden" id="targetUrl" />
+	<div class="p_head">
+		<div class="p_h_x" id="pop_server_header"></div>
+		<div style="float:right;">
+			<input type="button" class="p_btn"  onclick="hideDiv('pop_div');" title="关闭窗口" value="关闭">
+			</input>
+		</div>
+	</div>
+	<div>
+		<div style="clear:both;padding:10px;">
+			<table>
+				<tr>
+					<td align="right">
+						<select id="taskListSrc" size="10" class="box" name="taskListSrc">
+						</select>
+					</td>
+					<td align="center">
+						<input type="button" class="p_btn" value="全选>
+						>" onclick="addAll()" />
+						<br/>
+						<input type="button" class="p_btn" value="添加->
+						" onclick="addTask()" />
+						<br/>
+						<input type="button" class="p_btn" value="<-删除" onclick="removeTask()" /><br/>
+						<input type="button" class="p_btn" value="<<全消" onclick="removeAll()" />
+						</td>
+						<td align="left">
+						<select id="taskListTarget" size="10" class="box" name="taskListTarget">
+						</select>
+						</td>
+						</tr>
+						</table>
+						</div>
+						<div style="float:right">
+						<input id="confirm_select_task" type="button" value="确定" class="p_btn"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input id="reset_select_task" type="reset" value="重置" onclick="removeAll()" class="p_btn"/>
+						</div>
+						</div>
+						</div>
+						<div id='select_group_div' class="pop_box">
+						<input type="hidden" id="after_add_group_url" />
+						<div class="p_head">
+						<div class="p_h_x" id="select_group_prompt"></div>
+						<div style="float:right;">
+						<input type="button" class="p_btn"  onclick="hideDiv('select_group_div');" title="关闭窗口" value="关闭">
+						</input>
+						</div>
+						</div>
+						<div>
+						
+						<div style="clear:both;padding:10px;">
+						<table>
+						<tr>
+						<td align="right">
+						<select id="groupListSrc" size="10" class="box"/>
+						</td>
+						<td align="center">
+						<input type="button" class="p_btn" value="全选>>" onclick="addAllGroup()" /><br/>
+						<input type="button" class="p_btn" value="添加->" onclick="addGroup()" />
+						<br/>
+						<input type="button" class="p_btn" value="<-删除" onclick="removeGroup()" /><br/>
+						<input type="button" class="p_btn" value="<<全消" onclick="removeAllGroup()" />
+						</td>
+						<td align="left">
+						<select id="groupListTarget" size="10" class="box"/>
+						</td>
+						</tr>
+						</table>
+						</div>
+						<div style="float:right">
+						<input id="confirm_select_group" type="button" value="确定" class="p_btn"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input id="reset_select_group" type="reset" value="重置" onclick="removeAllGroup()" class="p_btn"/>
+						</div>
+						</div>
+						</div>
+						<div id='ocuppied_executor' class="pop_box" style="width:160px;height:50px">
+                        <div class="p_head">
+                          <div class="p_h_x" id="ocuppied_executor_prompt"></div>
+                          <div style="text-align:center">
+                          <input type="button" class="p_btn" onclick="hideDiv('ocuppied_executor');" title="关闭窗口" value="关闭">
+                          </input>
+                          </div>
+                       </div>
+</div>
+						<script>
+						function getServerOcuppiedExecutor(url,parent) {
+						var str = url.replace(".htm",".do");
+                        jQuery.getJSON(str,function(result){
+	                    var prompt = "<font size=2>" + "当前使用的执行器数量为:" + result.occupiedExecutorCount + "</font>";
+	                    $("#ocuppied_executor_prompt").html(prompt);
+                        popupDiv('ocuppied_executor',parent);
+                        });
+						}
+                        </script>
+						
+						<script language="javascript">
+						// group view use
+						function getCandidateGroups(url, server_name, target) {
+						
+						$('#groupListSrc').empty();
+						$('#groupListTarget').empty();
+						
+						$('#after_add_group_url').val(target);
+						//alert(target);
+						
+						var str = url.replace(".htm", ".do");
+						
+						jQuery.getJSON(str,function(result){
+						for (i = 0; i < result.candidate_groups.length; i++) {
+						$("<option>" + result.candidate_groups[i] + "</option>").appendTo('#groupListSrc');
+						}
+						
+						var prompt = "请为  " + server_name + " 选择要添加的Group ";
+						$("#select_group_prompt").html( prompt );
+						
+						
+						popupDiv('select_group_div');
+						});
+						}
+						
+						// change task type
+						$("#group_criteria").change(function(){
+						// var value = $(this).find("option:selected").text();
+						var selectedIndex = $(this).get(0).selectedIndex
+						//alert(selectedIndex);
+						if (selectedIndex == 2) {
+						$('#taskType').show();
+						$("#taskType").get(0).selectedIndex=0
+						} else {
+						$('#taskType').hide();
+						$("#taskType").get(0).selectedIndex=0
+						}
+						});
+						
+						</script>
+						
+						<script language="javascript">
+						
+						// server view use
+						function getServerTasks (url, server, targetUrl) {
+						
+						$('#taskListSrc').empty();
+						$('#taskListTarget').empty();
+						$('#targetUrl').val(targetUrl);
+						
+						var str2 = url.replace(".htm", ".do");
+						
+						jQuery.getJSON(str2,function(result){
+						
+						for (i = 0; i< result.candidateTasks.length; i++) {
+						$("<option>" + result.candidateTasks[i] + "</option>").appendTo('#taskListSrc');
+						}
+						
+						var prompt = "请为Server ：" + server + " 选择任务 ";
+						$("#pop_server_header").html( prompt );
+						
+						popupDiv('pop_div');
+						});
+						}
+						
+						function clearSearchForm(){
+						document.getElementById("serverName").value = "";
+						document.getElementById("taskName").value ="";
+						
+						document.getElementById("taskStatus").options[0].selected = true;
+						document.getElementById("serverStatus").options[0].selected = true;
+						
+						document.getElementById("group_criteria").options[0].selected = true;
+						
+						document.getElementById("taskType").options[0].selected = true;
+						
+						document.getElementById("searchForm").submit();
+						}
+						
+						function removeServerTask(host, url) {
+						if (!confirm("确认删除该任务？")) {
+						return;
+						}
+						
+						var con = getCondition();
+						//alert(url + con);
+						location.href = url + con;
+						}
+						
+						function removeServerInstance(deleteFlag, url) {
+						if (!confirm("确认删除该server？")) {
+						return;
+						}
+						
+						if (deleteFlag == "false") {
+						alert('请停止server并删除管理的任务和group！')
+						return;
+						}
+						
+						location.href = url;
+						}
+						</script>
+						<script language="javascript">
+						// 弹出div
+						function popupDiv(div_id,parent){
+						var div_obj = $("#" + div_id);
+						if(parent){
+                          var top = $(parent).position().top;
+                          var left = $(parent).position().left;
+						  div_obj.animate( { opacity: "show", left: left - 30,
+						  top: top + 20}
+						, 300);
+                        }else{
+						//窗口宽度,高度
+						var winWidth = $(window).width();
+						var winHeight = $(window).height();
+						//弹出的div的宽度,高度
+						var popHeight = div_obj.height();
+						var popWidth = div_obj.width();
+						div_obj.animate( { opacity: "show", left: (winWidth-popWidth) / 2,
+						top: (winHeight-popHeight)/2, width:popWidth,height:popHeight}
+						, 300);
+                        }
+						
+						}
+						
+						// 隐藏div
+						function hideDiv(div_id){
+						$("#" + div_id).animate({opacity: "hide" }
+						, 300);
+						}
+						
+						// 拖拽
+						$(function(){
+						$(".pop_box").easydrag();
+						$(".pop_box").setHandler(".pop_box .p_head");
+						});
+						
+						// 把选择的任务填写到任务输入框
+						$(function(){
+						$("#confirm_select_task").click(function() {
+						var data = "";
+						$('#taskListTarget option').each(function() {
+						data += $(this).val();
+						data += ",";
+						});
+						
+						data = data.substr(0, data.length - 1);
+						
+						//$("#targets").val(data);
+						
+						var url = $("#targetUrl").val() + "&targets=" + data + "&event_submit_do_deploy_task=1";
+						//var con = getCondition();
+						location.href = url + getCondition();
+						
+						hideDiv("pop_div");
+						});
+						});
+						
+						</script>
+						<script language="javascript">
+						// 添加选中的项到右边
+						function addTask(){
+						if ($('#taskListSrc')[0].selectedIndex < 0) {
+						return;
+						}
+						add();
+						}
+						
+						// 添加双击选中的项到右边
+						$('#taskListSrc').dblclick(function(){
+						
+						if($('#taskListSrc option:selected').attr("disabled") == null) {
+						return;
+						}
+						
+						// 左边的也消失了
+						//$("option:selected", this).appendTo('#taskListTarget');
+						add();
+						});
+						
+						// 添加选中的项到右边
+						function add() {
+						var select = $("#taskListSrc option:selected").val();
+						$('#taskListSrc option:selected').attr("disabled", true);
+						$('#taskListTarget').append('<option>' + select + '</option>');
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 全选
+						function addAll() {
+						$('#taskListSrc option').each(function() {
+						if ($(this).attr('disabled') == false) {
+						$(this).attr('disabled', true);
+						
+						var select = $(this).val();
+						$('#taskListTarget').append('<option>' + select + '</option>');
+						}
+						});
+						
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 添加双击反选
+						$('#taskListTarget').dblclick(function(){
+						// 左边的也消失了
+						removeTask();
+						});
+						
+						// 反选
+						function removeTask() {
+						var checkText = $("#taskListTarget").find("option:selected").text();
+						$("#taskListTarget").find("option:selected").remove();
+						
+						$('#taskListSrc option').each(function() {
+						if ($(this).val() == checkText) {
+						$(this).removeAttr('disabled');
+						}
+						});
+						}
+						
+						// 取消全部选中列
+						function removeAll() {
+						$('#taskListTarget').empty();
+						
+						$('#taskListSrc option').each(function() {
+						$(this).removeAttr('disabled');
+						});
+						
+						$('#taskListSrc')[0].selectedIndex = -1;
+						}
+						</script>
+						<script language="javascript">
+						// 添加选中的项到右边
+						function addGroup(){
+						if ($('#groupListSrc')[0].selectedIndex < 0) {
+						return;
+						}
+						addGroupImp();
+						}
+						
+						// 添加双击选中的项到右边
+						$('#groupListSrc').dblclick(function(){
+						// 左边的也消失了
+						//$("option:selected", this).appendTo('#groupListTarget');
+						
+						if($('#groupListSrc option:selected').attr("disabled") == null) {
+						return;
+						}
+						
+						addGroupImp();
+						});
+						
+						// 添加选中的项到右边
+						function addGroupImp() {
+						var select = $("#groupListSrc option:selected").val();
+						$('#groupListSrc option:selected').attr("disabled", true);
+						$('#groupListTarget').append('<option>' + select + '</option>');
+						$('#groupListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 全选
+						function addAllGroup() {
+						$('#groupListSrc option').each(function() {
+						if ($(this).attr('disabled') == false) {
+						$(this).attr('disabled', true);
+						
+						var select = $(this).val();
+						$('#groupListTarget').append('<option>' + select + '</option>');
+						}
+						});
+						
+						$('#groupListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 添加双击反选
+						$('#groupListTarget').dblclick(function(){
+						// 左边的也消失了
+						removeGroup();
+						});
+						
+						// 反选
+						function removeGroup() {
+						var checkText = $("#groupListTarget").find("option:selected").text();
+						$("#groupListTarget").find("option:selected").remove();
+						
+						$('#groupListSrc option').each(function() {
+						if ($(this).val() == checkText) {
+						$(this).removeAttr('disabled');
+						}
+						});
+						}
+						
+						// 取消全部选中列
+						function removeAllGroup() {
+						$('#groupListTarget').empty();
+						
+						$('#groupListSrc option').each(function() {
+						$(this).removeAttr('disabled');
+						});
+						
+						$('#groupListSrc')[0].selectedIndex = -1;
+						}
+						
+						// 把选择的任务填写到任务输入框
+						$(function(){
+						$("#confirm_select_group").click(function() {
+						
+						if ($('#groupListTarget').get(0).options.length == 0) {
+						alert("请选择Group！");
+						return;
+						}
+						
+						var data = "";
+						$('#groupListTarget option').each(function() {
+						data += $(this).val();
+						data += ",";
+						});
+						
+						data = data.substr(0, data.length - 1);
+						
+						var url = $("#after_add_group_url").val() + "&targets=" + data;
+						
+						//alert(url);
+						hideDiv('select_group_div');
+						
+						location.href = url + getCondition();
+						//location.href = url;
+						});
+						});
+						
+						// delete group depolyed at server
+						function removeServerGroup(serverName, groupName, url, originUrl) {
+						
+						if (!confirm("确定删除该Group？")) {
+						return;
+						}
+						
+						
+						var str2 = url.replace(".htm", ".do");
+						
+						//alert(str2);
+						jQuery.getJSON(str2,function(result){
+						
+						
+						if (result.runningTasks.length == 0) {
+						
+						originUrl += "&serverName=" + serverName;
+						originUrl +=  "&groupName=" + groupName;
+						originUrl += "&event_submit_do_remove_group=1";
+						//alert(originUrl);
+						location.href = originUrl + getCondition();
+						} else {
+						var msg = "该server运行的group的任务: \n";
+						for (var i = 0; i < result.runningTasks.length; i++) {
+						msg += result.runningTasks[i] + "\n";
+						}
+						
+						msg += "请先停止该group类型的任务！";
+						
+						alert(msg);
+						}
+						});
+						
+						//alert(originUrl);
+						//location.href = originUrl;
+						}
+						
+						function clear_group_criteria() {
+						//alert();
+						$('input#group_criteria_server_name').val('');
+						document.getElementById("groupSearchForm").submit();
+						}
+						
+						function redirect_to_group(url) {
+						alert(url);
+						}
+						
+						function startTask(host,  url) {
+							//alert(host);
+							var con = getCondition();
+							//alert(url + con);
+							location.href = url + con;
+						}
+						
+						function stopTask(host,  url) {
+					
+							var con = getCondition();
+							//alert(url + con);
+							location.href = url + con;
+						}
+
+						
+						// 获取查询条件和分页条件
+						function getCondition() {
+							var groupCriteria = $("#group_criteria").val();
+							var criteriaServerName = $("#criteriaServerName").val();
+							var criteriaTaskName = $("#criteriaTaskName").val();
+							var con = "&groupCriteria=" + groupCriteria;
+							
+							con += "&criteriaServerName=" + criteriaServerName;
+							con += "&criteriaTaskName=" + criteriaTaskName;
+							con += "&host=" + $("#host").get(0).selectedIndex;
+							
+							con += "&pageCount=" + $pageCount;
+							con += "&currentPage=" + $currentPage;
+							con += "&pageSizeInt=" + $pageSizeInt;
+							//valert(con);
+						
+							return con;
+						}
+						
+						function mess(taskName){
+		                    alert("任务" + taskName +"中，有正在运行的主机，不能修改！\n请先停止运行的主机！");
+	                    }
+						
+						</script>
+#set($uri="jingwei_servers.htm?a=1")
+#pager($uri $pageCount $currentPage "searchForm" $pageSizeInt)
+#pagerCss()						
+						
+

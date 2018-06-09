@@ -1,0 +1,6 @@
+<div id="home-logo" style="float:left;width=127px;">
+	<img src="$imageModule.getURI('/logo.jpg')" height="56"/>
+</div>
+<div id='nav-bar'>
+	<span style="color:#222;font-weight:bold">╢Ф╢╒ткн╛ф╫л╗</span>
+</div>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="vtabroot" class="com.taobao.tddl.interact.rule.VirtualTableRoot"
+		init-method="init">
+		<property name="defaultDbIndex" value="TCREAD0_GROUP" />
+		<property name="dbType" value="MYSQL"></property>
+		<property name="tableRules">
+			<map>
+				<entry key="tc_biz_order" value-ref="tc_biz_order_bean"></entry>
+				<entry key="tc_refund_trade" value-ref="tc_refund_trade_read" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="tc_biz_order_bean" class="com.taobao.tddl.interact.rule.TableRule">
+		<property name="dbRuleArray">
+			<value>"TCREAD" + (#seller_id,1,512#.longValue() % 512).intdiv(16) +
+				"_GROUP"</value>
+		</property>
+		<property name="tbRuleArray">
+			<value>"tc_biz_order_" + placeHolder(4,#seller_id,1,512#.longValue()
+				% 512)</value>
+		</property>
+	</bean>
+
+	<bean id="tc_refund_trade_read" class="com.taobao.tddl.interact.rule.TableRule">
+		<property name="dbRuleArray">
+			<value>"TCREAD" + (#seller_id,1,32#.longValue() % 32) + "_GROUP"</value>
+		</property>
+		<property name="tbNamePattern" value="tc_refund_trade"/>
+	</bean>
+
+</beans>
